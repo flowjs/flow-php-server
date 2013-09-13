@@ -8,6 +8,8 @@ PHP library for handling chunk uploads. Library contains helper methods for:
  * Validating uploaded chunks
  * Merging all chunks to a single file
 
+ This library is compatible with HTML5 file upload library: https://github.com/resumable2/resumable.js
+
 Advanced Usage
 --------------
 

@@ -3,22 +3,7 @@ namespace Unit;
 use \org\bovigo\vfs\vfsStreamWrapper;
 use \org\bovigo\vfs\vfsStreamDirectory;
 use \org\bovigo\vfs\vfsStream;
-/**
- * Class FileTest
- * @package Unit
- *
-$file = new \Resumable\File($this->request);
-$chunksDir = $file->init('../chunks');
-$chunk = new \Resumable\Chunk($this->request);
-if ($chunk->validate($_FILES['input'])) {
-$chunk->overwirte($_FILES['input'], $chunksDir);
-} else {
-// error
-}
-if ($file->validate()) {
-$file->save('../files');
-}
- */
+use Resumable\Exception;
 
 class FileTest extends \PHPUnit_Framework_TestCase
 {
@@ -68,7 +53,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
     {
         $this->request['resumableTotalSize'] = 10;
         $file = new \Resumable\File($this->request);
-        $dir = $file->init($this->root->url(), 777);
+        $dir = $file->init($this->root->url(), 0777);
         $vfsDir = $this->root->getChild($file->identifier);
 
         $this->assertTrue(file_exists($dir));
@@ -76,19 +61,91 @@ class FileTest extends \PHPUnit_Framework_TestCase
         $this->assertNotNull($vfsDir);
         $this->assertFalse($file->validate());
 
-        $chunk = vfsStream::newFile('1');
-        $chunk->setContent('123');
-        $vfsDir->addChild($chunk);
+        $firstChunk = vfsStream::newFile('1');
+        $firstChunk->setContent('123');
+        $vfsDir->addChild($firstChunk);
 
-        $chunk = vfsStream::newFile('2');
-        $chunk->setContent('123');
-        $vfsDir->addChild($chunk);
+        $secondChunk = vfsStream::newFile('2');
+        $secondChunk->setContent('456');
+        $vfsDir->addChild($secondChunk);
 
-        $chunk = vfsStream::newFile('3');
-        $chunk->setContent('1234');
-        $vfsDir->addChild($chunk);
+        $lastChunk = vfsStream::newFile('3');
+        $lastChunk->setContent('7890');
+        $vfsDir->addChild($lastChunk);
 
         $this->assertTrue($file->validate());
 
+        $lastChunk->setContent('789');
+        $this->assertFalse($file->validate());
+        $file->size = 9;
+        $this->assertTrue($file->validate());
+        $secondChunk->rename('4');
+        $this->assertFalse($file->validate());
+        $secondChunk->rename('2');//restore
+        unlink($lastChunk->url());
+        $this->assertFalse($file->validate());
+    }
+
+    public function testDeleteChunks()
+    {
+        $file = new \Resumable\File($this->request);
+        $dir = $file->init($this->root->url(), 0777);
+        $vfsDir = $this->root->getChild($file->identifier);
+        $chunk = vfsStream::newFile('1', 0777);
+        $chunk->setContent('123');
+        $vfsDir->addChild($chunk);
+
+        $this->assertTrue(file_exists($dir));
+        $this->assertTrue(is_dir($dir));
+
+        $this->assertTrue($file->deleteChunks());
+        $this->assertFalse(file_exists($dir));
+        $this->assertFalse(is_dir($dir));
+    }
+
+    public function testSave()
+    {
+        $this->request['resumableTotalSize'] = 9;
+        $file = new \Resumable\File($this->request);
+        $dir = $file->init($this->root->url(), 0777);
+        $vfsDir = $this->root->getChild($file->identifier);
+        $chunk = vfsStream::newFile('1', 0777);
+        $chunk->setContent('123');
+        $vfsDir->addChild($chunk);
+
+        $chunk = vfsStream::newFile('2', 0777);
+        $chunk->setContent('456');
+        $vfsDir->addChild($chunk);
+
+        $chunk = vfsStream::newFile('3', 0777);
+        $chunk->setContent('789');
+        $vfsDir->addChild($chunk);
+
+        $filePath = $this->root->url() . DIRECTORY_SEPARATOR . 'file';
+        $file->save($filePath);
+        $this->assertTrue(file_exists($filePath));
+        $this->assertEquals($this->request['resumableTotalSize'], filesize($filePath));
+    }
+
+    public function testSaveLock()
+    {
+        $this->request['resumableTotalSize'] = 9;
+        $file = new \Resumable\File($this->request);
+        $dir = $file->init($this->root->url(), 0777);
+        $filePath = $this->root->url() . DIRECTORY_SEPARATOR . 'file';
+
+        $fh = fopen($filePath, 'wb');
+        $this->assertTrue(flock($fh, LOCK_EX));
+        $windows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+        try {
+            $this->assertFalse($file->save($filePath));
+            if ($windows) {
+                $this->fail();
+            }
+        } catch (Exception $e) {
+            if (!$windows) {
+                $this->fail();
+            }
+        }
     }
 }

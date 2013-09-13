@@ -45,9 +45,13 @@ class File
      */
     public $baseDir;
 
+    /**
+     * Chunk name prefix
+     * @var string
+     */
+    public $prefix;
 
-
-    function __construct($request)
+    function __construct($request, $prefix = '')
     {
         if (isset($request['resumableFilename'])) {
             $this->name = $request['resumableFilename'];
@@ -67,6 +71,7 @@ class File
         if (isset($request['resumableChunkSize'])) {
             $this->defaultChunkSize = (int) $request['resumableChunkSize'];
         }
+        $this->prefix = $prefix;
     }
 
     /**
@@ -75,7 +80,7 @@ class File
      */
     public function getChunksFolder()
     {
-        return $this->baseDir . '/' . $this->identifier;
+        return $this->baseDir . DIRECTORY_SEPARATOR . $this->identifier;
     }
 
     /**
@@ -84,7 +89,7 @@ class File
      * @param int $mode chmod mode
      * @return string chunks dir path
      */
-    public function init($dir, $mode = 755)
+    public function init($dir, $mode = 0755)
     {
         $this->baseDir = $dir;
         $dir = $this->getChunksFolder();
@@ -94,15 +99,77 @@ class File
         return $dir;
     }
 
+    /**
+     * Check if file upload is complete
+     * @return bool
+     */
     public function validate()
     {
         $dir = $this->getChunksFolder();
-        $chunksNumber = count(array_diff(scandir($dir), array('..', '.')));
-        return $chunksNumber == $this->totalChunks;
+        $totalChunksSize = 0;
+        for ($i = 1; $i <= $this->totalChunks; $i++) {
+            $file = $dir . DIRECTORY_SEPARATOR . $this->prefix . $i;
+            if (!file_exists($file)) {
+                return false;
+            }
+            $totalChunksSize += filesize($file);
+        }
+        return $this->size == $totalChunksSize;
     }
 
-    public function save()
+    /**
+     * Merge all chunks to single file
+     * @param string $destination final file location
+     * @param callable $preProcessChunk function for pre processing chunk
+     * @return bool indicates if file was saved
+     * @throws \Exception
+     * @throws Exception
+     */
+    public function save($destination, $preProcessChunk = null)
     {
+        $fh = fopen($destination, 'wb');
+        if (!$fh) {
+            throw new Exception('Failed to open destination file');
+        }
+        if (!flock($fh, LOCK_EX | LOCK_NB, $blocked)) {
+            if ($blocked) {
+                // Concurrent request has requested a lock.
+                // File is being processed at the moment.
+                // Warning: lock is not checked in windows.
+                return false;
+            }
+            throw new Exception('Failed to lock file');
+        }
+        $dir = $this->getChunksFolder();
+        try {
+            for ($i = 1; $i <= $this->totalChunks; $i++) {
+                $file = $dir . DIRECTORY_SEPARATOR . $this->prefix . $i;
+                $chunk = fopen($file, "rb");
+                if (!$chunk) {
+                    throw new Exception('Failed to open chunk');
+                }
+                if ($preProcessChunk !== null) {
+                    call_user_func($preProcessChunk, $chunk);
+                }
+                stream_copy_to_stream($chunk, $fh);
+                fclose($chunk);
+            }
+        } catch (\Exception $e) {
+            flock($fh, LOCK_UN);
+            fclose($fh);
+            throw $e;
+        }
+        flock($fh, LOCK_UN);
+        fclose($fh);
+        return true;
+    }
 
+    /**
+     * Delete chunks dir
+     * @return bool
+     */
+    public function deleteChunks()
+    {
+        return Uploader::deleteChunksDirectory($this->getChunksFolder());
     }
 }

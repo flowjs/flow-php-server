@@ -4,6 +4,8 @@ namespace Unit;
 use \org\bovigo\vfs\vfsStreamWrapper;
 use \org\bovigo\vfs\vfsStreamDirectory;
 use \org\bovigo\vfs\vfsStream;
+use Resumable\Exception;
+use Resumable\Chunk;
 
 class ChunkTest extends \PHPUnit_Framework_TestCase
 {
@@ -33,16 +35,15 @@ class ChunkTest extends \PHPUnit_Framework_TestCase
 
     public function testRequest()
     {
-        $chunk = new \Resumable\Chunk($this->request);
+        $chunk = new Chunk($this->request);
         $this->assertEquals($chunk->index, 1);
         $this->assertEquals($chunk->size, 13632);
     }
 
     public function testExists()
     {
-        $chunk = new \Resumable\Chunk($this->request);
+        $chunk = new Chunk($this->request);
         $this->assertFalse($chunk->exists(vfsStream::url('chunks')));
-
         $file = vfsStream::newFile('1');
         $this->root->addChild($file);
         $this->assertTrue($chunk->exists(vfsStream::url('chunks')));
@@ -50,7 +51,7 @@ class ChunkTest extends \PHPUnit_Framework_TestCase
 
     public function testSave()
     {
-        $chunk = new \Resumable\Chunk($this->request);
+        $chunk = new Chunk($this->request);
         $this->assertFalse($chunk->exists(vfsStream::url('chunks')));
         $file = vfsStream::newFile('1');
         $this->root->addChild($file);
@@ -62,38 +63,46 @@ class ChunkTest extends \PHPUnit_Framework_TestCase
     public function testValidate()
     {
         $this->request['resumableCurrentChunkSize'] = 10;
-        $chunk = new \Resumable\Chunk($this->request);
+        $chunk = new Chunk($this->request);
         $this->assertTrue($chunk->validate([
             'size' => 10,
             'error' => UPLOAD_ERR_OK,
+            'tmp_name' => ''
         ]));
         $this->assertFalse($chunk->validate([
             'size' => 9,
             'error' => UPLOAD_ERR_OK,
+            'tmp_name' => ''
         ]));
         $this->assertFalse($chunk->validate([
             'size' => 10,
             'error' => UPLOAD_ERR_EXTENSION,
+            'tmp_name' => ''
         ]));
-        $this->assertFalse($chunk->validate([]));
+        try {
+            $this->assertFalse($chunk->validate([]));
+            $this->fail();
+        } catch (Exception $e) {
+
+        }
     }
 
     public function testDelete()
     {
-        $chunk = new \Resumable\Chunk($this->request);
+        $chunk = new Chunk($this->request);
         $file = vfsStream::newFile('1');
         $this->root->addChild($file);
-        $this->assertTrue($chunk->exists(vfsStream::url('chunks')));
-        $this->assertTrue($chunk->delete($this->root));
-        $this->assertFalse($chunk->exists(vfsStream::url('chunks')));
+        $this->assertTrue($chunk->exists($this->root->url()));
+        $this->assertTrue($chunk->delete($this->root->url()));
+        $this->assertFalse($chunk->exists($this->root->url()));
     }
 
     public function testPrefixSave()
     {
-        $chunk = new \Resumable\Chunk($this->request, 'pre_');
-        $this->assertFalse($chunk->exists(vfsStream::url('chunks')));
+        $chunk = new Chunk($this->request, 'pre_');
+        $this->assertFalse($chunk->exists($this->root->url()));
         $file = vfsStream::newFile('pre_1');
         $this->root->addChild($file);
-        $this->assertTrue($chunk->exists(vfsStream::url('chunks')));
+        $this->assertTrue($chunk->exists($this->root->url()));
     }
 }

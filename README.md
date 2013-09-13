@@ -8,38 +8,41 @@ PHP library for handling chunk uploads. Library contains helper methods for:
  * Validating uploaded chunks
  * Merging all chunks to a single file
 
- This library is compatible with HTML5 file upload library: https://github.com/resumable2/resumable.js
+This library is compatible with HTML5 file upload library: https://github.com/resumable2/resumable.js
 
 Advanced Usage
 --------------
 
 ```php
-    $file = new \Resumable\File($_REQUEST);
-    $chunksDir = $file->init('./chunks_folder');
-    $chunk = new \Resumable\Chunk($_REQUEST);
+$file = new \Resumable\File($_REQUEST);
+$chunksDir = $file->init('./chunks_folder');
+$chunk = new \Resumable\Chunk($_REQUEST);
 
-    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-      if ($chunk->exists($chunksDir)) {
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    if ($chunk->exists($chunksDir)) {
         header("HTTP/1.1 200 Ok");
-      } else {
+    } else {
         header("HTTP/1.1 404 Not Found");
-      }
-      return ;
     }
+    return ;
+}
 
-    if (isset($_FILES['file']) && $chunk->validate($_FILES['file'])) {
-      $chunk->overwrite($_FILES['file'], $chunksDir);
-    } else {
-      // error, invalid chunk upload request, retry
-      header("HTTP/1.1 400 Bad Request");
-    }
-    if ($file->validate()) {
-      $file->save('./final_file_name');
-      $file->deleteChunks();
-    } else {
-      // This is not a final chunk, continue to upload
-    }
+if (isset($_FILES['file']) && $chunk->validate($_FILES['file'])) {
+    $chunk->overwrite($_FILES['file'], $chunksDir);
+} else {
+    // error, invalid chunk upload request, retry
+    header("HTTP/1.1 400 Bad Request");
+}
+if ($file->validate()) {
+    $file->save('./final_file_name');
+    $file->deleteChunks();
+} else {
+    // This is not a final chunk, continue to upload
+}
 ```
+Explanation:
+ - `new \Resumable\File($_REQUEST)` initiate new File object from request parameters
+ - ...
 
 Delete unfinished files
 -----------------------
@@ -49,14 +52,14 @@ If chunk is uploaded long time ago, then chunk should be deleted.
 
 Helper method for checking this:
 ```php
-    \Resumable\Uploader::pruneChunks('./chunks_folder');
+\Resumable\Uploader::pruneChunks('./chunks_folder');
 ```
 
 Cron task can by avoided by using random function execution.
 ```php
-    if (1 == mt_rand(1, 100)) {
-        \Resumable\Uploader::pruneChunks('./chunks_folder');
-    }
+if (1 == mt_rand(1, 100)) {
+    \Resumable\Uploader::pruneChunks('./chunks_folder');
+}
 ```
 
 Contribution

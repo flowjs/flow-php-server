@@ -8,6 +8,14 @@
       "email": "aidaskk@gmail.com"
     }
   ],
+  "keywords": [
+    "resumable.js",
+    "resumable",
+    "upload",
+    "file upload",
+    "html5 file upload",
+    "chunks"
+  ],
   "require": {
 
   },

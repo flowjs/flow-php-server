@@ -1,21 +1,24 @@
 {
-    "name": "aidask/resumable.js-php-server",
-    "description": "reumable.js php server implementation library and example.",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Aidas Klimas",
-            "email": "aidaskk@gmail.com"
-        }
-    ],
-    "require": {
-
-    },
-    "require-dev": {
-        "phpunit/phpunit": "3.7.*",
-        "mikey179/vfsStream": "v1.2.0"
-    },
-    "autoload": {
-        "psr-0": { "Resumable": "src/Resumable" }
+  "name": "resumable2/resumable.js-php-server",
+  "description": "PHP library for handling chunk uploads. Works with resumable.js html5 file uploads.",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Aidas Klimas",
+      "email": "aidaskk@gmail.com"
     }
+  ],
+  "require": {
+
+  },
+  "require-dev": {
+    "phpunit/phpunit": "3.7.*",
+    "mikey179/vfsStream": "v1.2.0",
+    "satooshi/php-coveralls": "dev-master"
+  },
+  "autoload": {
+    "psr-0": {
+      "Resumable": "src/Resumable"
+    }
+  }
 }

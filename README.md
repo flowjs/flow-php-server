@@ -33,9 +33,8 @@ if (isset($_FILES['file']) && $chunk->validate($_FILES['file'])) {
     // error, invalid chunk upload request, retry
     header("HTTP/1.1 400 Bad Request");
 }
-if ($file->validate()) {
-    $file->save('./final_file_name');
-    $file->deleteChunks();
+if ($file->validate() && $file->save('./final_file_name')) {
+    // File upload was completed
 } else {
     // This is not a final chunk, continue to upload
 }

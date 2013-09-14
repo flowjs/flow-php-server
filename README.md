@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 }
 
 if (isset($_FILES['file']) && $chunk->validate($_FILES['file'])) {
-    $chunk->overwrite($_FILES['file'], $chunksDir);
+    $chunk->save($_FILES['file'], $chunksDir);
 } else {
     // error, invalid chunk upload request, retry
     header("HTTP/1.1 400 Bad Request");

@@ -136,16 +136,11 @@ class FileTest extends \PHPUnit_Framework_TestCase
 
         $fh = fopen($filePath, 'wb');
         $this->assertTrue(flock($fh, LOCK_EX));
-        $windows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
         try {
-            $this->assertFalse($file->save($filePath));
-            if ($windows) {
-                $this->fail();
-            }
+            $file->save($filePath);
+            $this->fail();
         } catch (Exception $e) {
-            if (!$windows) {
-                $this->fail();
-            }
+
         }
     }
 }

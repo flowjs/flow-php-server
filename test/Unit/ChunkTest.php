@@ -53,11 +53,25 @@ class ChunkTest extends \PHPUnit_Framework_TestCase
     {
         $chunk = new Chunk($this->request);
         $this->assertFalse($chunk->exists(vfsStream::url('chunks')));
-        $file = vfsStream::newFile('1');
+        $file = vfsStream::newFile('tmp', 0777);
         $this->root->addChild($file);
         $chunk->save([
-            'tmp_name' => vfsStream::url('chunks/1')
-        ], $this->root);
+            'tmp_name' => $file->url()
+        ], $this->root->url());
+    }
+
+    public function testOverwrite()
+    {
+        $chunk = new Chunk($this->request);
+        $this->assertFalse($chunk->exists(vfsStream::url('chunks')));
+        $file = vfsStream::newFile('tmp', 0777);
+        $this->root->addChild($file);
+        $file = vfsStream::newFile('1', 0777);
+        $this->root->addChild($file);
+        $chunk->overwrite([
+            'tmp_name' => vfsStream::url('chunks/tmp')
+        ], $this->root->url());
+        $this->assertFalse(file_exists($file->path()));
     }
 
     public function testValidate()

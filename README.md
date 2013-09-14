@@ -1,4 +1,4 @@
-resumable.js php server
+resumable.js php server [![Build Status](https://travis-ci.org/resumable2/resumable.js-php-server.png?branch=master)](https://travis-ci.org/resumable2/resumable.js-php-server) [![Coverage Status](https://coveralls.io/repos/resumable2/resumable.js-php-server/badge.png?branch=master)](https://coveralls.io/r/resumable2/resumable.js-php-server?branch=master)
 =======================
 
 PHP library for handling chunk uploads. Library contains helper methods for:

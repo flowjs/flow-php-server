@@ -12,5 +12,4 @@ script:
   - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
 
 after_script:
-  - tail -f build/logs/clover.xml -n50
   - php vendor/bin/coveralls -v

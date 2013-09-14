@@ -13,7 +13,7 @@
         >
     <testsuites>
         <testsuite name="Resumable Test Suite">
-            <directory>./test/unit/</directory>
+            <directory>./test/Unit/</directory>
         </testsuite>
     </testsuites>
 

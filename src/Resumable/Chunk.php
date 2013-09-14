@@ -90,13 +90,13 @@ class Chunk {
      */
     public function save($file, $dir)
     {
-        return move_uploaded_file($file['tmp_name'], $dir);
+        return move_uploaded_file($file['tmp_name'], $this->getChunkPath($dir));
     }
 
     /**
      * Overwrite file if it exists
-     * @param $file
-     * @param $dir
+     * @param string $file
+     * @param string $dir file directory
      * @return bool
      */
     public function overwrite($file, $dir)

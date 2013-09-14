@@ -125,7 +125,7 @@ class File
      * @throws \Exception
      * @throws Exception
      */
-    public function save($destination, $preProcessChunk = null)
+    public function save($destination, $preProcessChunk = null, $deleteChunks = true)
     {
         $fh = fopen($destination, 'wb');
         if (!$fh) {
@@ -158,6 +158,9 @@ class File
             flock($fh, LOCK_UN);
             fclose($fh);
             throw $e;
+        }
+        if ($deleteChunks) {
+            $this->deleteChunks();
         }
         flock($fh, LOCK_UN);
         fclose($fh);

@@ -33,7 +33,7 @@ class Chunk {
     }
 
     /**
-     *
+     * Get path to the chunk
      * @param $dir
      * @return string
      */
@@ -90,20 +90,17 @@ class Chunk {
      */
     public function save($file, $dir)
     {
-        return move_uploaded_file($file['tmp_name'], $this->getChunkPath($dir));
+        return $this->move_uploaded_file($file['tmp_name'], $this->getChunkPath($dir));
     }
 
     /**
-     * Overwrite file if it exists
-     * @param string $file
-     * @param string $dir file directory
+     * Helper method for testing
+     * @param $filename
+     * @param $destination
      * @return bool
      */
-    public function overwrite($file, $dir)
+    protected function move_uploaded_file($filename, $destination)
     {
-        if ($this->exists($dir)) {
-            $this->delete($dir);
-        }
-        return $this->save($file, $dir);
+        return move_uploaded_file($filename, $destination);
     }
 }

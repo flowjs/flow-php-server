@@ -7,6 +7,7 @@ use \org\bovigo\vfs\vfsStream;
 use Resumable\Exception;
 use Resumable\Chunk;
 
+
 class ChunkTest extends \PHPUnit_Framework_TestCase
 {
     public $request;
@@ -51,27 +52,27 @@ class ChunkTest extends \PHPUnit_Framework_TestCase
 
     public function testSave()
     {
-        $chunk = new Chunk($this->request);
-        $this->assertFalse($chunk->exists(vfsStream::url('chunks')));
-        $file = vfsStream::newFile('tmp', 0777);
-        $this->root->addChild($file);
-        $chunk->save([
-            'tmp_name' => $file->url()
-        ], $this->root->url());
-    }
+        $chunk = $this->getMock('\Resumable\Chunk', array('move_uploaded_file'), [$this->request]);
+        $chunk->expects($this->any())
+            ->method('move_uploaded_file')
+            ->will($this->returnCallback(function ($filename, $destination) {
+                return rename($filename, $destination);
+            }));
 
-    public function testOverwrite()
-    {
-        $chunk = new Chunk($this->request);
         $this->assertFalse($chunk->exists(vfsStream::url('chunks')));
         $file = vfsStream::newFile('tmp', 0777);
         $this->root->addChild($file);
-        $file = vfsStream::newFile('1', 0777);
+        $this->assertTrue($chunk->save([
+            'tmp_name' => $file->url()
+        ], vfsStream::url('chunks')));
+        $this->assertTrue($chunk->exists(vfsStream::url('chunks')));
+
+        // overwrite
+        $file = vfsStream::newFile('tmp', 0777);
         $this->root->addChild($file);
-        $chunk->overwrite([
-            'tmp_name' => vfsStream::url('chunks/tmp')
-        ], $this->root->url());
-        $this->assertFalse(file_exists($file->path()));
+        $this->assertTrue($chunk->save([
+            'tmp_name' => $file->url()
+        ], vfsStream::url('chunks')));
     }
 
     public function testValidate()

@@ -121,6 +121,7 @@ class File
      * Merge all chunks to single file
      * @param string $destination final file location
      * @param callable $preProcessChunk function for pre processing chunk
+     * @param bool $deleteChunks indicates if chunks folder will be deleted after save
      * @return bool indicates if file was saved
      * @throws \Exception
      * @throws Exception

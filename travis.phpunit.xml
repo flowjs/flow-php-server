@@ -24,7 +24,7 @@
     </filter>
 
     <logging>
-        <log type="coverage-clover" target="/build/coverage.xml"/>
+        <log type="coverage-clover" target="build/coverage.xml"/>
         <log type="coverage-text" target="php://stdout" showUncoveredFiles="false"/>
     </logging>
 
@@ -48,7 +48,7 @@
                         <string>https://coveralls.io/api/v1/jobs</string>
                     </element>
                     <element key="coverage_dir">
-                        <string>/build</string>
+                        <string>build</string>
                     </element>
                 </array>
             </arguments>

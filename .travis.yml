@@ -9,4 +9,4 @@ before_script:
 
 script:
   - mkdir -p build
-  - vendor/bin/phpunit --configuration travis.phpunit.xml
+  - phpunit --configuration travis.phpunit.xml

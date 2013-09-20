@@ -13,5 +13,6 @@ class AutoloadTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(class_exists('Resumable\NoClass', false));
         $autoloader->autoload('Resumable\File');
         $this->assertTrue(class_exists('Resumable\File'));
+        \Resumable\Autoloader::register();
     }
 }

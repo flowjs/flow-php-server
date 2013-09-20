@@ -54,7 +54,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
         $this->request['resumableTotalSize'] = 10;
         $file = new \Resumable\File($this->request);
         $dir = $file->init($this->root->url(), 0777);
-        $vfsDir = $this->root->getChild($file->identifier);
+        $vfsDir = $this->root->getChild($file->chunksDir);
 
         $this->assertTrue(file_exists($dir));
         $this->assertTrue(is_dir($dir));
@@ -90,7 +90,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
     {
         $file = new \Resumable\File($this->request);
         $dir = $file->init($this->root->url(), 0777);
-        $vfsDir = $this->root->getChild($file->identifier);
+        $vfsDir = $this->root->getChild($file->chunksDir);
         $chunk = vfsStream::newFile('1', 0777);
         $chunk->setContent('123');
         $vfsDir->addChild($chunk);
@@ -108,7 +108,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
         $this->request['resumableTotalSize'] = 9;
         $file = new \Resumable\File($this->request);
         $dir = $file->init($this->root->url(), 0777);
-        $vfsDir = $this->root->getChild($file->identifier);
+        $vfsDir = $this->root->getChild($file->chunksDir);
         $chunk = vfsStream::newFile('1', 0777);
         $chunk->setContent('123');
         $vfsDir->addChild($chunk);

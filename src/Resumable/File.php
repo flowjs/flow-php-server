@@ -4,6 +4,16 @@ namespace Resumable;
 class File
 {
     /**
+     * Generate chunks folder name
+     * @param File $file
+     * @return string
+     */
+    public static function hashNameCallback($file)
+    {
+        return sha1($file->identifier);
+    }
+
+    /**
      * File name
      * @var string
      */
@@ -46,6 +56,12 @@ class File
     public $baseDir;
 
     /**
+     * Path to file chunks dir
+     * @var string
+     */
+    public $chunksDir;
+
+    /**
      * Chunk name prefix
      * @var string
      */
@@ -78,21 +94,24 @@ class File
      * Get chunks dir path
      * @return string chunks dir path
      */
-    public function getChunksFolder()
+    public function getChunksDirPath()
     {
-        return $this->baseDir . DIRECTORY_SEPARATOR . $this->identifier;
+        return $this->baseDir . DIRECTORY_SEPARATOR . $this->chunksDir;
     }
 
     /**
      * Create chunks directory if not exists
      * @param $dir
      * @param int $mode chmod mode
+     * @param callable $hashNameCallback callback for generating unique chunks folder name,
+     * first argument stands for \Resumable\File.
      * @return string chunks dir path
      */
-    public function init($dir, $mode = 0755)
+    public function init($dir, $mode = 0755, $hashNameCallback = '\Resumable\File::hashNameCallback')
     {
         $this->baseDir = $dir;
-        $dir = $this->getChunksFolder();
+        $this->chunksDir = call_user_func($hashNameCallback, $this);
+        $dir = $this->getChunksDirPath();
         if (!file_exists($dir)) {
             mkdir($dir, $mode);
         }
@@ -105,7 +124,7 @@ class File
      */
     public function validate()
     {
-        $dir = $this->getChunksFolder();
+        $dir = $this->getChunksDirPath();
         $totalChunksSize = 0;
         for ($i = 1; $i <= $this->totalChunks; $i++) {
             $file = $dir . DIRECTORY_SEPARATOR . $this->prefix . $i;
@@ -141,7 +160,7 @@ class File
             }
             throw new Exception('Failed to lock file');
         }
-        $dir = $this->getChunksFolder();
+        $dir = $this->getChunksDirPath();
         try {
             for ($i = 1; $i <= $this->totalChunks; $i++) {
                 $file = $dir . DIRECTORY_SEPARATOR . $this->prefix . $i;
@@ -174,6 +193,6 @@ class File
      */
     public function deleteChunks()
     {
-        return Uploader::deleteChunksDirectory($this->getChunksFolder());
+        return Uploader::deleteChunksDirectory($this->getChunksDirPath());
     }
 }

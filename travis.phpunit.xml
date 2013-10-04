@@ -42,7 +42,7 @@
                         <string>Your\Package\Namespace</string>
                     </element>
                     <element key="repo_token">
-                        <string>kGiHkjBg7ZqQaEWTlAxjbc4tsbbGl9wob</string>
+                        <string>TtscpSyNYUnuG2LkxtWCQmAtBk8vWAMsI</string>
                     </element>
                     <element key="target_url">
                         <string>https://coveralls.io/api/v1/jobs</string>

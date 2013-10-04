@@ -12,14 +12,14 @@
          bootstrap="test/bootstrap.php"
         >
     <testsuites>
-        <testsuite name="Resumable Test Suite">
+        <testsuite name="Flow Test Suite">
             <directory>./test/Unit/</directory>
         </testsuite>
     </testsuites>
 
     <filter>
         <whitelist>
-            <directory suffix=".php">./src/Resumable/</directory>
+            <directory suffix=".php">./src/Flow/</directory>
         </whitelist>
     </filter>
 </phpunit>

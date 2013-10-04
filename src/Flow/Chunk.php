@@ -1,5 +1,5 @@
 <?php
-namespace Resumable;
+namespace Flow;
 
 class Chunk {
 
@@ -23,11 +23,11 @@ class Chunk {
 
     function __construct($request, $prefix = '')
     {
-        if (isset($request['resumableChunkNumber'])) {
-            $this->index = (int) $request['resumableChunkNumber'];
+        if (isset($request['flowChunkNumber'])) {
+            $this->index = (int) $request['flowChunkNumber'];
         }
-        if (isset($request['resumableCurrentChunkSize'])) {
-            $this->size = (int) $request['resumableCurrentChunkSize'];
+        if (isset($request['flowCurrentChunkSize'])) {
+            $this->size = (int) $request['flowCurrentChunkSize'];
         }
         $this->prefix = $prefix;
     }

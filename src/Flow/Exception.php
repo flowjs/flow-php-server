@@ -1,5 +1,5 @@
 <?php
-namespace Resumable;
+namespace Flow;
 
 class Exception extends \Exception
 {

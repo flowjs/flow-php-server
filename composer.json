@@ -1,6 +1,6 @@
 {
-  "name": "resumable2/resumable.js-php-server",
-  "description": "PHP library for handling chunk uploads. Works with resumable.js html5 file uploads.",
+  "name": "flowjs/flow-php-server",
+  "description": "PHP library for handling chunk uploads. Works with flow.js html5 file uploads.",
   "license": "MIT",
   "authors": [
     {
@@ -9,6 +9,8 @@
     }
   ],
   "keywords": [
+    "flow.js",
+    "flow"
     "resumable.js",
     "resumable",
     "upload",
@@ -25,7 +27,7 @@
   },
   "autoload": {
     "psr-0": {
-      "Resumable": "src"
+      "Flow": "src"
     }
   }
 }

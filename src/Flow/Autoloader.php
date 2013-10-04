@@ -1,5 +1,5 @@
 <?php
-namespace Resumable;
+namespace Flow;
 
 class Autoloader {
 
@@ -25,7 +25,7 @@ class Autoloader {
      */
     public function autoload($class)
     {
-        if (0 !== strpos($class, 'Resumable')) {
+        if (0 !== strpos($class, 'Flow')) {
             return;
         }
 

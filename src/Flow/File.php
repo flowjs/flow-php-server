@@ -1,5 +1,5 @@
 <?php
-namespace Resumable;
+namespace Flow;
 
 class File
 {
@@ -69,23 +69,23 @@ class File
 
     function __construct($request, $prefix = '')
     {
-        if (isset($request['resumableFilename'])) {
-            $this->name = $request['resumableFilename'];
+        if (isset($request['flowFilename'])) {
+            $this->name = $request['flowFilename'];
         }
-        if (isset($request['resumableTotalSize'])) {
-            $this->size = (int) $request['resumableTotalSize'];
+        if (isset($request['flowTotalSize'])) {
+            $this->size = (int) $request['flowTotalSize'];
         }
-        if (isset($request['resumableIdentifier'])) {
-            $this->identifier = $request['resumableIdentifier'];
+        if (isset($request['flowIdentifier'])) {
+            $this->identifier = $request['flowIdentifier'];
         }
-        if (isset($request['resumableRelativePath'])) {
-            $this->relativePath = $request['resumableRelativePath'];
+        if (isset($request['flowRelativePath'])) {
+            $this->relativePath = $request['flowRelativePath'];
         }
-        if (isset($request['resumableTotalChunks'])) {
-            $this->totalChunks = (int) $request['resumableTotalChunks'];
+        if (isset($request['flowTotalChunks'])) {
+            $this->totalChunks = (int) $request['flowTotalChunks'];
         }
-        if (isset($request['resumableChunkSize'])) {
-            $this->defaultChunkSize = (int) $request['resumableChunkSize'];
+        if (isset($request['flowChunkSize'])) {
+            $this->defaultChunkSize = (int) $request['flowChunkSize'];
         }
         $this->prefix = $prefix;
     }
@@ -104,10 +104,10 @@ class File
      * @param $dir
      * @param int $mode chmod mode
      * @param callable $hashNameCallback callback for generating unique chunks folder name,
-     * first argument stands for \Resumable\File.
+     * first argument stands for \Flow\File.
      * @return string chunks dir path
      */
-    public function init($dir, $mode = 0755, $hashNameCallback = '\Resumable\File::hashNameCallback')
+    public function init($dir, $mode = 0755, $hashNameCallback = '\Flow\File::hashNameCallback')
     {
         $this->baseDir = $dir;
         $this->chunksDir = call_user_func($hashNameCallback, $this);

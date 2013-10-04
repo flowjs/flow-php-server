@@ -4,8 +4,8 @@ namespace Unit;
 use \org\bovigo\vfs\vfsStreamWrapper;
 use \org\bovigo\vfs\vfsStreamDirectory;
 use \org\bovigo\vfs\vfsStream;
-use Resumable\Exception;
-use Resumable\Chunk;
+use Flow\Exception;
+use Flow\Chunk;
 
 
 class ChunkTest extends \PHPUnit_Framework_TestCase
@@ -19,14 +19,14 @@ class ChunkTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->request = [
-            'resumableChunkNumber' => 1,
-            'resumableChunkSize' => 1048576,
-            'resumableCurrentChunkSize' => 13632,
-            'resumableTotalSize' => 13632,
-            'resumableIdentifier' => '13632-prettifyjs',
-            'resumableFilename' => 'prettify.js',
-            'resumableRelativePath' => 'home/prettify.js',
-            'resumableTotalChunks' => 3
+            'flowChunkNumber' => 1,
+            'flowChunkSize' => 1048576,
+            'flowCurrentChunkSize' => 13632,
+            'flowTotalSize' => 13632,
+            'flowIdentifier' => '13632-prettifyjs',
+            'flowFilename' => 'prettify.js',
+            'flowRelativePath' => 'home/prettify.js',
+            'flowTotalChunks' => 3
         ];
 
         vfsStreamWrapper::register();
@@ -52,7 +52,7 @@ class ChunkTest extends \PHPUnit_Framework_TestCase
 
     public function testSave()
     {
-        $chunk = $this->getMock('\Resumable\Chunk', array('move_uploaded_file'), [$this->request]);
+        $chunk = $this->getMock('\Flow\Chunk', array('move_uploaded_file'), [$this->request]);
         $chunk->expects($this->any())
             ->method('move_uploaded_file')
             ->will($this->returnCallback(function ($filename, $destination) {
@@ -77,7 +77,7 @@ class ChunkTest extends \PHPUnit_Framework_TestCase
 
     public function testValidate()
     {
-        $this->request['resumableCurrentChunkSize'] = 10;
+        $this->request['flowCurrentChunkSize'] = 10;
         $chunk = new Chunk($this->request);
         $this->assertTrue($chunk->validate([
             'size' => 10,

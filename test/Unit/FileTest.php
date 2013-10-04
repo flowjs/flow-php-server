@@ -3,7 +3,7 @@ namespace Unit;
 use \org\bovigo\vfs\vfsStreamWrapper;
 use \org\bovigo\vfs\vfsStreamDirectory;
 use \org\bovigo\vfs\vfsStream;
-use Resumable\Exception;
+use Flow\Exception;
 
 class FileTest extends \PHPUnit_Framework_TestCase
 {
@@ -16,14 +16,14 @@ class FileTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->request = [
-            'resumableChunkNumber' => 1,
-            'resumableChunkSize' => 1048576,
-            'resumableCurrentChunkSize' => 13632,
-            'resumableTotalSize' => 13632,
-            'resumableIdentifier' => '13632-prettifyjs',
-            'resumableFilename' => 'prettify.js',
-            'resumableRelativePath' => 'home/prettify.js',
-            'resumableTotalChunks' => 3
+            'flowChunkNumber' => 1,
+            'flowChunkSize' => 1048576,
+            'flowCurrentChunkSize' => 13632,
+            'flowTotalSize' => 13632,
+            'flowIdentifier' => '13632-prettifyjs',
+            'flowFilename' => 'prettify.js',
+            'flowRelativePath' => 'home/prettify.js',
+            'flowTotalChunks' => 3
         ];
         vfsStreamWrapper::register();
         $this->root = new vfsStreamDirectory('chunks');
@@ -32,7 +32,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 
     public function testRequest()
     {
-        $file = new \Resumable\File($this->request);
+        $file = new \Flow\File($this->request);
         $this->assertEquals($file->name, 'prettify.js');
         $this->assertEquals($file->size, 13632);
         $this->assertEquals($file->identifier, '13632-prettifyjs');
@@ -43,7 +43,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 
     public function testInit()
     {
-        $file = new \Resumable\File($this->request);
+        $file = new \Flow\File($this->request);
         $dir = $file->init($this->root->url());
         $this->assertNotEquals($dir, $this->root->url());
         $this->assertTrue(is_dir($dir));
@@ -51,8 +51,8 @@ class FileTest extends \PHPUnit_Framework_TestCase
 
     public function testValidate()
     {
-        $this->request['resumableTotalSize'] = 10;
-        $file = new \Resumable\File($this->request);
+        $this->request['flowTotalSize'] = 10;
+        $file = new \Flow\File($this->request);
         $dir = $file->init($this->root->url(), 0777);
         $vfsDir = $this->root->getChild($file->chunksDir);
 
@@ -88,7 +88,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 
     public function testDeleteChunks()
     {
-        $file = new \Resumable\File($this->request);
+        $file = new \Flow\File($this->request);
         $dir = $file->init($this->root->url(), 0777);
         $vfsDir = $this->root->getChild($file->chunksDir);
         $chunk = vfsStream::newFile('1', 0777);
@@ -105,8 +105,8 @@ class FileTest extends \PHPUnit_Framework_TestCase
 
     public function testSave()
     {
-        $this->request['resumableTotalSize'] = 9;
-        $file = new \Resumable\File($this->request);
+        $this->request['flowTotalSize'] = 9;
+        $file = new \Flow\File($this->request);
         $dir = $file->init($this->root->url(), 0777);
         $vfsDir = $this->root->getChild($file->chunksDir);
         $chunk = vfsStream::newFile('1', 0777);
@@ -124,13 +124,13 @@ class FileTest extends \PHPUnit_Framework_TestCase
         $filePath = $this->root->url() . DIRECTORY_SEPARATOR . 'file';
         $file->save($filePath);
         $this->assertTrue(file_exists($filePath));
-        $this->assertEquals($this->request['resumableTotalSize'], filesize($filePath));
+        $this->assertEquals($this->request['flowTotalSize'], filesize($filePath));
     }
 
     public function testSaveLock()
     {
-        $this->request['resumableTotalSize'] = 9;
-        $file = new \Resumable\File($this->request);
+        $this->request['flowTotalSize'] = 9;
+        $file = new \Flow\File($this->request);
         $dir = $file->init($this->root->url(), 0777);
         $filePath = $this->root->url() . DIRECTORY_SEPARATOR . 'file';
 

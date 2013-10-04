@@ -4,7 +4,7 @@ namespace Unit;
 use \org\bovigo\vfs\vfsStreamWrapper;
 use org\bovigo\vfs\vfsStreamDirectory;
 use org\bovigo\vfs\vfsStream;
-use Resumable\Uploader;
+use Flow\Uploader;
 
 class UploaderTest extends \PHPUnit_Framework_TestCase
 {

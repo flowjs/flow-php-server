@@ -103,7 +103,7 @@ class File
      * Create chunks directory if not exists
      * @param $dir
      * @param int $mode chmod mode
-     * @param callable $hashNameCallback callback for generating unique chunks folder name,
+     * @param callable|string $hashNameCallback callback for generating unique chunks folder name,
      * first argument stands for \Flow\File.
      * @return string chunks dir path
      */
@@ -113,7 +113,10 @@ class File
         $this->chunksDir = call_user_func($hashNameCallback, $this);
         $dir = $this->getChunksDirPath();
         if (!file_exists($dir)) {
-            mkdir($dir, $mode);
+            // Sorry, but on concurrent requests file_exists check does not help here.
+            // in some cases mkdir(): File exists (...) error is thrown
+            // hope to solve this in future version
+            @mkdir($dir, $mode, true);
         }
         return $dir;
     }

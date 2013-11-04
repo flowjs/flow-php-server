@@ -10,31 +10,42 @@ PHP library for handling chunk uploads. Library contains helper methods for:
 
 This library is compatible with HTML5 file upload library: https://github.com/flowjs/flow.js
 
+Basic Usage
+--------------
+```php
+if (\Flow\Uploader::save('./final_file_destination', './chunks_temp_folder')) {
+  // file saved successfully and can be accessed at './final_file_destination'
+} else {
+  // This is not a final chunk or request is invalid, continue to upload.
+}
+```
+Make sure that `./chunks_temp_folder` path exists. All chunks will be save in this temporary folder.
+
 Advanced Usage
 --------------
 
 ```php
-$file = new \Flow\File($_REQUEST);
-$chunksDir = $file->init('./chunks_folder');
-$chunk = new \Flow\Chunk($_REQUEST);
+$config = new \Flow\Config();
+$config->setTempDir('./chunks_temp_folder');
+$file = new \Flow\File($config);
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    if ($chunk->exists($chunksDir)) {
+    if ($file->checkChunk()) {
         header("HTTP/1.1 200 Ok");
     } else {
         header("HTTP/1.1 404 Not Found");
         return ;
     }
 } else {
-  if (isset($_FILES['file']) && $chunk->validate($_FILES['file'])) {
-      $chunk->save($_FILES['file'], $chunksDir);
+  if ($file->validateChunk()) {
+      $file->saveChunk();
   } else {
       // error, invalid chunk upload request, retry
       header("HTTP/1.1 400 Bad Request");
       return ;
   }
 }
-if ($file->validate() && $file->save('./final_file_name')) {
+if ($file->validateFile() && $file->save('./final_file_name')) {
     // File upload was completed
 } else {
     // This is not a final chunk, continue to upload
@@ -52,7 +63,7 @@ Helper method for checking this:
 \Flow\Uploader::pruneChunks('./chunks_folder');
 ```
 
-Cron task can by avoided by using random function execution.
+Cron task can be avoided by using random function execution.
 ```php
 if (1 == mt_rand(1, 100)) {
     \Flow\Uploader::pruneChunks('./chunks_folder');

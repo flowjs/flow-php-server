@@ -4,151 +4,102 @@ namespace Flow;
 class File
 {
     /**
-     * Generate chunks folder name
-     * @param File $file
-     * @return string
+     * @var RequestInterface
      */
-    public static function hashNameCallback($file)
+    private $request;
+
+    /**
+     * @var ConfigInterface
+     */
+    private $config;
+
+    /**
+     * File hashed unique identifier
+     * @var string
+     */
+    private $identifier;
+
+    function __construct(ConfigInterface $config, RequestInterface $request = null)
     {
-        return sha1($file->identifier);
+        $this->config = $config;
+        if ($request === null) {
+            $request = new Request();
+        }
+        $this->request = $request;
+        $this->identifier = call_user_func($this->config->getHashNameCallback(), $request);
+    }
+
+    public function getChunkPath($index)
+    {
+        return $this->config->getTempDir() . DIRECTORY_SEPARATOR . $this->identifier . '_' . $index;
     }
 
     /**
-     * File name
-     * @var string
+     * Check if chunk exist
+     * @return bool
      */
-    public $name;
-
-    /**
-     * File size
-     * @var int
-     */
-    public $size;
-
-    /**
-     * File identifier
-     * @var string
-     */
-    public $identifier;
-
-    /**
-     * File relative path
-     * @var string
-     */
-    public $relativePath;
-
-    /**
-     * Chunks number
-     * @var int
-     */
-    public $totalChunks;
-
-    /**
-     * Default chunk size
-     * @var int
-     */
-    public $defaultChunkSize;
-
-    /**
-     * Path to base dir
-     * @var string
-     */
-    public $baseDir;
-
-    /**
-     * Path to file chunks dir
-     * @var string
-     */
-    public $chunksDir;
-
-    /**
-     * Chunk name prefix
-     * @var string
-     */
-    public $prefix;
-
-    function __construct($request, $prefix = '')
+    public function checkChunk()
     {
-        if (isset($request['flowFilename'])) {
-            $this->name = $request['flowFilename'];
-        }
-        if (isset($request['flowTotalSize'])) {
-            $this->size = (int) $request['flowTotalSize'];
-        }
-        if (isset($request['flowIdentifier'])) {
-            $this->identifier = $request['flowIdentifier'];
-        }
-        if (isset($request['flowRelativePath'])) {
-            $this->relativePath = $request['flowRelativePath'];
-        }
-        if (isset($request['flowTotalChunks'])) {
-            $this->totalChunks = (int) $request['flowTotalChunks'];
-        }
-        if (isset($request['flowChunkSize'])) {
-            $this->defaultChunkSize = (int) $request['flowChunkSize'];
-        }
-        $this->prefix = $prefix;
+        return file_exists($this->getChunkPath($this->request->getCurrentChunkNumber()));
     }
 
     /**
-     * Get chunks dir path
-     * @return string chunks dir path
+     * Validate file request
+     * @return bool
+     * @throws exception for invalid $file array
      */
-    public function getChunksDirPath()
+    public function validateChunk()
     {
-        return $this->baseDir . DIRECTORY_SEPARATOR . $this->chunksDir;
+        $file = $this->request->getFile();
+        if (!$file) {
+            return false;
+        }
+        if (!isset($file['tmp_name']) || !isset($file['size']) || !isset($file['error'])) {
+            return false;
+        }
+        if ($this->request->getCurrentChunkSize() != $file['size']) {
+            return false;
+        }
+        if ($file['error'] !== UPLOAD_ERR_OK) {
+            return false;
+        }
+        return true;
     }
 
-    /**
-     * Create chunks directory if not exists
-     * @param $dir
-     * @param int $mode chmod mode
-     * @param callable|string $hashNameCallback callback for generating unique chunks folder name,
-     * first argument stands for \Flow\File.
-     * @return string chunks dir path
-     */
-    public function init($dir, $mode = 0755, $hashNameCallback = '\Flow\File::hashNameCallback')
+    public function saveChunk()
     {
-        $this->baseDir = $dir;
-        $this->chunksDir = call_user_func($hashNameCallback, $this);
-        $dir = $this->getChunksDirPath();
-        if (!file_exists($dir)) {
-            // Sorry, but on concurrent requests file_exists check does not help here.
-            // in some cases mkdir(): File exists (...) error is thrown
-            // hope to solve this in future version
-            @mkdir($dir, $mode, true);
-        }
-        return $dir;
+        $file = $this->request->getFile();
+        return $this->move_uploaded_file(
+            $file['tmp_name'], $this->getChunkPath($this->request->getCurrentChunkNumber())
+        );
     }
 
     /**
      * Check if file upload is complete
      * @return bool
      */
-    public function validate()
+    public function validateFile()
     {
-        $dir = $this->getChunksDirPath();
+        $totalChunks = $this->request->getTotalChunks();
         $totalChunksSize = 0;
-        for ($i = 1; $i <= $this->totalChunks; $i++) {
-            $file = $dir . DIRECTORY_SEPARATOR . $this->prefix . $i;
+        for ($i = 1; $i <= $totalChunks; $i++) {
+            $file = $this->getChunkPath($i);
             if (!file_exists($file)) {
                 return false;
             }
             $totalChunksSize += filesize($file);
         }
-        return $this->size == $totalChunksSize;
+        return $this->request->getTotalSize() == $totalChunksSize;
     }
 
     /**
      * Merge all chunks to single file
      * @param string $destination final file location
-     * @param callable $preProcessChunk function for pre processing chunk
-     * @param bool $deleteChunks indicates if chunks folder will be deleted after save
      * @return bool indicates if file was saved
      * @throws \Exception
      * @throws Exception
      */
-    public function save($destination, $preProcessChunk = null, $deleteChunks = true)
+    public function save($destination)
     {
         $fh = fopen($destination, 'wb');
         if (!$fh) {
@@ -163,10 +114,11 @@ class File
             }
             throw new Exception('Failed to lock file');
         }
-        $dir = $this->getChunksDirPath();
+        $totalChunks = $this->request->getTotalChunks();
         try {
-            for ($i = 1; $i <= $this->totalChunks; $i++) {
-                $file = $dir . DIRECTORY_SEPARATOR . $this->prefix . $i;
+            $preProcessChunk = $this->config->getPreprocessCallback();
+            for ($i = 1; $i <= $totalChunks; $i++) {
+                $file = $this->getChunkPath($i);
                 $chunk = fopen($file, "rb");
                 if (!$chunk) {
                     throw new Exception('Failed to open chunk');
@@ -182,7 +134,7 @@ class File
             fclose($fh);
             throw $e;
         }
-        if ($deleteChunks) {
+        if ($this->config->getDeleteChunksOnSave()) {
             $this->deleteChunks();
         }
         flock($fh, LOCK_UN);
@@ -192,10 +144,19 @@ class File
 
     /**
      * Delete chunks dir
-     * @return bool
      */
     public function deleteChunks()
     {
-        return Uploader::deleteChunksDirectory($this->getChunksDirPath());
+        $totalChunks = $this->request->getTotalChunks();
+        for ($i = 1; $i <= $totalChunks; $i++) {
+            $path = $this->getChunkPath($i);
+            if (file_exists($path)) {
+                unlink($path);
+            }
+        }
+    }
+
+    private function move_uploaded_file($fileName, $destination) {
+        return move_uploaded_file($fileName, $destination);
     }
 }

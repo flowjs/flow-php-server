@@ -1,7 +1,7 @@
 <?php
 namespace Unit;
 
-use \org\bovigo\vfs\vfsStreamWrapper;
+use org\bovigo\vfs\vfsStreamWrapper;
 use org\bovigo\vfs\vfsStreamDirectory;
 use org\bovigo\vfs\vfsStream;
 use Flow\Uploader;
@@ -23,28 +23,20 @@ class UploaderTest extends \PHPUnit_Framework_TestCase
     public function testPruneChunks()
     {
         $newDir = vfsStream::newDirectory('1');
+        $newDir->lastModified(time()-31);
         $newDir->lastModified(time());
-        $newFile = vfsStream::newFile('file_1');
-        $newDir->addChild($newFile);
-
-        $oldDir = vfsStream::newDirectory('2');
-        $oldFile = vfsStream::newFile('file_1');
-        $oldDir->addChild($oldFile);
-        $oldDir->lastModified(time() - 60);
-
-
-        $randomFile = vfsStream::newFile('random_file');
-
+        $fileFirst = vfsStream::newFile('file31');
+        $fileFirst->lastModified(time()-31);
+        $fileSecond = vfsStream::newFile('random_file');
+        $fileSecond->lastModified(time()-30);
         $this->root->addChild($newDir);
-        $this->root->addChild($oldDir);
-        $this->root->addChild($randomFile);
+        $this->root->addChild($fileFirst);
+        $this->root->addChild($fileSecond);
 
         Uploader::pruneChunks($this->root->url(), 30);
         $this->assertTrue(file_exists($newDir->url()));
-        $this->assertTrue(file_exists($newFile->url()));
-        $this->assertFalse(file_exists($oldDir->url()));
-        $this->assertFalse(file_exists($oldFile->url()));
-        $this->assertTrue(file_exists($randomFile->url()));
+        $this->assertFalse(file_exists($fileFirst->url()));
+        $this->assertTrue(file_exists($fileSecond->url()));
     }
 
 }

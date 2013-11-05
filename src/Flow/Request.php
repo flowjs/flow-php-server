@@ -3,8 +3,8 @@ namespace Flow;
 
 class Request implements RequestInterface {
 
-    private $params;
-    private $file;
+    protected $params;
+    protected $file;
 
     function __construct($params = null, $file = null)
     {
@@ -18,7 +18,7 @@ class Request implements RequestInterface {
         $this->file = $file;
     }
 
-    private function getParam($name)
+    protected function getParam($name)
     {
         return isset($this->params[$name]) ? $this->params[$name] : null;
     }

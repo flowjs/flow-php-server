@@ -13,7 +13,7 @@ class FustyRequest extends Request
     {
         parent::__construct($params, $file);
         if ($this->isFustyFlowRequest()) {
-            $this->params['flowTotalSize'] = isset($file['size']) ? $file['size'] : 0;
+            $this->params['flowTotalSize'] = isset($this->file['size']) ? $this->file['size'] : 0;
             $this->params['flowTotalChunks'] = 1;
             $this->params['flowChunkNumber'] = 1;
             $this->params['flowChunkSize'] = $this->params['flowTotalSize'];

@@ -20,6 +20,9 @@
     <filter>
         <whitelist>
             <directory suffix=".php">./src/Flow/</directory>
+            <exclude>
+                <file>./src/Flow/Basic.php</file>
+            </exclude>
         </whitelist>
     </filter>
 </phpunit>

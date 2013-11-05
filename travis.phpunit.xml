@@ -20,6 +20,9 @@
     <filter>
         <whitelist>
             <directory suffix=".php">./src/Flow/</directory>
+            <exclude>
+                <file>./src/Flow/Basic.php</file>
+            </exclude>
         </whitelist>
     </filter>
 
@@ -39,7 +42,7 @@
                         <object class="League\PHPUnitCoverageListener\Hook\Travis"/>
                     </element>
                     <element key="namespace">
-                        <string>Your\Package\Namespace</string>
+                        <string>Flow</string>
                     </element>
                     <element key="repo_token">
                         <string>TtscpSyNYUnuG2LkxtWCQmAtBk8vWAMsI</string>

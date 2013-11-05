@@ -89,10 +89,10 @@ class Config implements ConfigInterface
 
     /**
      * Generate chunk identifier
-     * @param Request $request
+     * @param RequestInterface $request
      * @return string
      */
-    public static function hashNameCallback(Request $request)
+    public static function hashNameCallback(RequestInterface $request)
     {
         return sha1($request->getIdentifier());
     }

@@ -69,7 +69,7 @@ class File
     public function saveChunk()
     {
         $file = $this->request->getFile();
-        return $this->move_uploaded_file(
+        return $this->_move_uploaded_file(
             $file['tmp_name'], $this->getChunkPath($this->request->getCurrentChunkNumber())
         );
     }
@@ -156,7 +156,14 @@ class File
         }
     }
 
-    private function move_uploaded_file($fileName, $destination) {
+    /**
+     * This method is used only for testing
+     * @private
+     * @param $fileName
+     * @param $destination
+     * @return bool
+     */
+    public function _move_uploaded_file($fileName, $destination) {
         return move_uploaded_file($fileName, $destination);
     }
 }

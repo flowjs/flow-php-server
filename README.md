@@ -13,7 +13,7 @@ This library is compatible with HTML5 file upload library: https://github.com/fl
 Basic Usage
 --------------
 ```php
-if (\Flow\Uploader::save('./final_file_destination', './chunks_temp_folder')) {
+if (\Flow\Basic::save('./final_file_destination', './chunks_temp_folder')) {
   // file saved successfully and can be accessed at './final_file_destination'
 } else {
   // This is not a final chunk or request is invalid, continue to upload.

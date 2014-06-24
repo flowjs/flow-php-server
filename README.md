@@ -21,6 +21,8 @@ if (\Flow\Basic::save('./final_file_destination', './chunks_temp_folder')) {
 ```
 Make sure that `./chunks_temp_folder` path exists. All chunks will be save in this temporary folder.
 
+If you are stuck with this example, please read this issue: [How to use the flow-php-server](https://github.com/flowjs/flow-php-server/issues/3#issuecomment-46979467)
+
 Advanced Usage
 --------------
 

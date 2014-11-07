@@ -121,7 +121,7 @@ class File
                 $file = $this->getChunkPath($i);
                 $chunk = fopen($file, "rb");
                 if (!$chunk) {
-                    throw new Exception('Failed to open chunk');
+                    throw new Exception('Failed to open chunk: ' . $file);
                 }
                 if ($preProcessChunk !== null) {
                     call_user_func($preProcessChunk, $chunk);

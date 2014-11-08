@@ -122,15 +122,16 @@ class File
         return $this->request->getTotalSize() == $totalChunksSize;
     }
 
-    /**
-     * Merge all chunks to single file
-     *
-     * @param string $destination final file location
-     *
-     * @throws Exception
-     *
-     * @return bool indicates if file was saved
-     */
+	/**
+	 * Merge all chunks to single file
+	 *
+	 * @param string $destination final file location
+	 *
+	 * @throws Exception
+	 * @throws \Exception
+	 *
+	 * @return bool indicates if file was saved
+	 */
     public function save($destination)
     {
         $fh = fopen($destination, 'wb');
@@ -182,6 +183,7 @@ class File
 
 	    flock($fh, LOCK_UN);
         fclose($fh);
+
         return true;
     }
 

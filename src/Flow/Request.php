@@ -3,21 +3,47 @@ namespace Flow;
 
 class Request implements RequestInterface
 {
+	/**
+	 * Request parameters
+	 *
+	 * @var array
+	 */
     protected $params;
+
+	/**
+	 * File
+	 *
+	 * @var array
+	 */
     protected $file;
 
+	/**
+	 * Constructor
+	 *
+	 * @param array|null $params
+	 * @param array|null $file
+	 */
     public function __construct($params = null, $file = null)
     {
         if ($params === null) {
             $params = $_REQUEST;
         }
+
         if ($file === null && isset($_FILES['file'])) {
             $file = $_FILES['file'];
         }
+
         $this->params = $params;
         $this->file = $file;
     }
 
+	/**
+	 * Get parameter value
+	 *
+	 * @param string $name
+	 *
+	 * @return string|int|null
+	 */
     protected function getParam($name)
     {
         return isset($this->params[$name]) ? $this->params[$name] : null;
@@ -25,7 +51,8 @@ class Request implements RequestInterface
 
     /**
      * Get uploaded file name
-     * @return string
+     *
+     * @return string|null
      */
     public function getFileName()
     {
@@ -34,7 +61,8 @@ class Request implements RequestInterface
 
     /**
      * Get total file size in bytes
-     * @return int
+     *
+     * @return int|null
      */
     public function getTotalSize()
     {
@@ -43,7 +71,8 @@ class Request implements RequestInterface
 
     /**
      * Get file unique identifier
-     * @return string
+     *
+     * @return string|null
      */
     public function getIdentifier()
     {
@@ -52,7 +81,8 @@ class Request implements RequestInterface
 
     /**
      * Get file relative path
-     * @return string
+     *
+     * @return string|null
      */
     public function getRelativePath()
     {
@@ -61,7 +91,8 @@ class Request implements RequestInterface
 
     /**
      * Get total chunks number
-     * @return int
+     *
+     * @return int|null
      */
     public function getTotalChunks()
     {
@@ -70,7 +101,8 @@ class Request implements RequestInterface
 
     /**
      * Get default chunk size
-     * @return int
+     *
+     * @return int|null
      */
     public function getDefaultChunkSize()
     {
@@ -79,7 +111,8 @@ class Request implements RequestInterface
 
     /**
      * Get current uploaded chunk number, starts with 1
-     * @return int
+     *
+     * @return int|null
      */
     public function getCurrentChunkNumber()
     {
@@ -88,7 +121,8 @@ class Request implements RequestInterface
 
     /**
      * Get current uploaded chunk size
-     * @return int
+     *
+     * @return int|null
      */
     public function getCurrentChunkSize()
     {
@@ -97,6 +131,7 @@ class Request implements RequestInterface
 
     /**
      * Return $_FILE request
+     *
      * @return array|null
      */
     public function getFile()

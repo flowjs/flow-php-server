@@ -58,4 +58,11 @@ interface RequestInterface
      * @return int
      */
     public function getCurrentChunkSize();
+
+	/**
+	 * Return $_FILES request
+	 *
+	 * @return array|null
+	 */
+	public function getFile();
 }

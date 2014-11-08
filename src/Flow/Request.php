@@ -130,7 +130,7 @@ class Request implements RequestInterface
     }
 
     /**
-     * Return $_FILE request
+     * Return $_FILES request
      *
      * @return array|null
      */

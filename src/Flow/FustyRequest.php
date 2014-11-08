@@ -10,7 +10,7 @@ class FustyRequest extends Request
 {
     private $isFusty = false;
 
-    function __construct($params = null, $file = null)
+    public function __construct($params = null, $file = null)
     {
         parent::__construct($params, $file);
         $this->isFusty = $this->getTotalSize() === null && $this->getFileName() && $this->getFile();
@@ -27,8 +27,8 @@ class FustyRequest extends Request
      * Checks if request is formed by fusty flow
      * @return bool
      */
-    function isFustyFlowRequest()
+    public function isFustyFlowRequest()
     {
         return $this->isFusty;
     }
-} 
+}

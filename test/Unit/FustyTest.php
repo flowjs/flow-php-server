@@ -55,7 +55,5 @@ class FustyTest extends \PHPUnit_Framework_TestCase
         $path = $this->root->url() . DIRECTORY_SEPARATOR . 'new';
         $this->assertTrue($file->save($path));
         $this->assertEquals(10, filesize($path));
-
     }
-
-} 
+}

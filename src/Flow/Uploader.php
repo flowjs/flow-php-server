@@ -1,8 +1,8 @@
 <?php
 namespace Flow;
 
-class Uploader {
-
+class Uploader
+{
     /**
      * Delete chunks older than expiration time.
      * @param string $chunksFolder

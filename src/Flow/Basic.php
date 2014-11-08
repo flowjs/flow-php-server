@@ -6,8 +6,8 @@ namespace Flow;
  * Example for handling basic uploads
  * @package Flow
  */
-class Basic {
-
+class Basic
+{
     /**
      * @param string $destination where to save file
      * @param string|ConfigInterface $config
@@ -45,4 +45,4 @@ class Basic {
             return false;
         }
     }
-} 
+}

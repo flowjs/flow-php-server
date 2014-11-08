@@ -19,7 +19,7 @@ class File
      */
     private $identifier;
 
-    function __construct(ConfigInterface $config, RequestInterface $request = null)
+    public function __construct(ConfigInterface $config, RequestInterface $request = null)
     {
         $this->config = $config;
         if ($request === null) {
@@ -163,7 +163,8 @@ class File
      * @param $destination
      * @return bool
      */
-    public function _move_uploaded_file($fileName, $destination) {
+    public function _move_uploaded_file($fileName, $destination)
+    {
         return move_uploaded_file($fileName, $destination);
     }
 }

@@ -38,5 +38,4 @@ class UploaderTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(file_exists($fileFirst->url()));
         $this->assertTrue(file_exists($fileSecond->url()));
     }
-
 }

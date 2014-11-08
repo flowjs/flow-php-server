@@ -1,8 +1,8 @@
 <?php
 namespace Flow;
 
-class Autoloader {
-
+class Autoloader
+{
     private $dir;
 
     public function __construct($dir = null)

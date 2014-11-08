@@ -5,7 +5,7 @@ class Config implements ConfigInterface
 {
     private $config;
 
-    function __construct($config = array())
+    public function __construct($config = array())
     {
         $this->config = $config;
     }
@@ -14,7 +14,7 @@ class Config implements ConfigInterface
      * Set path to temporary directory for chunks storage
      * @param $path
      */
-    function setTempDir($path)
+    public function setTempDir($path)
     {
         $this->config['tempDir'] = $path;
     }
@@ -23,7 +23,7 @@ class Config implements ConfigInterface
      * Get path to temporary directory for chunks storage
      * @return string
      */
-    function getTempDir()
+    public function getTempDir()
     {
         return isset($this->config['tempDir']) ? $this->config['tempDir'] : '';
     }
@@ -32,7 +32,7 @@ class Config implements ConfigInterface
      * set chunk identifier
      * @param callable $callback
      */
-    function setHashNameCallback($callback)
+    public function setHashNameCallback($callback)
     {
         $this->config['hashNameCallback'] = $callback;
     }
@@ -41,7 +41,7 @@ class Config implements ConfigInterface
      * Generate chunk identifier
      * @return callable
      */
-    function getHashNameCallback()
+    public function getHashNameCallback()
     {
         return isset($this->config['hashNameCallback']) ? $this->config['hashNameCallback'] :
             '\Flow\Config::hashNameCallback';
@@ -51,7 +51,7 @@ class Config implements ConfigInterface
      * Callback to preprocess chunk
      * @param callable $callback
      */
-    function setPreprocessCallback($callback)
+    public function setPreprocessCallback($callback)
     {
         $this->config['preprocessCallback'] = $callback;
     }
@@ -60,7 +60,7 @@ class Config implements ConfigInterface
      * Callback to preprocess chunk
      * @return callable|null
      */
-    function getPreprocessCallback()
+    public function getPreprocessCallback()
     {
         return isset($this->config['preprocessCallback']) ?
             $this->config['preprocessCallback'] :
@@ -71,7 +71,7 @@ class Config implements ConfigInterface
      * Delete chunks on save
      * @param bool $delete
      */
-    function setDeleteChunksOnSave($delete)
+    public function setDeleteChunksOnSave($delete)
     {
         $this->config['deleteChunksOnSave'] = $delete;
     }
@@ -80,7 +80,7 @@ class Config implements ConfigInterface
      * Delete chunks on save
      * @return bool
      */
-    function getDeleteChunksOnSave()
+    public function getDeleteChunksOnSave()
     {
         return isset($this->config['deleteChunksOnSave']) ?
             $this->config['deleteChunksOnSave'] :
@@ -96,4 +96,4 @@ class Config implements ConfigInterface
     {
         return sha1($request->getIdentifier());
     }
-} 
+}

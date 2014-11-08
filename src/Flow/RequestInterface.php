@@ -1,54 +1,53 @@
 <?php
 namespace Flow;
 
-interface RequestInterface {
-
+interface RequestInterface
+{
     /**
      * Get uploaded file name
      * @return string
      */
-    function getFileName();
+    public function getFileName();
 
     /**
      * Get total file size in bytes
      * @return int
      */
-    function getTotalSize();
+    public function getTotalSize();
 
     /**
      * Get file unique identifier
      * @return string
      */
-    function getIdentifier();
+    public function getIdentifier();
 
     /**
      * Get file relative path
      * @return string
      */
-    function getRelativePath();
+    public function getRelativePath();
 
     /**
      * Get total chunks number
      * @return int
      */
-    function getTotalChunks();
+    public function getTotalChunks();
 
     /**
      * Get default chunk size
      * @return int
      */
-    function getDefaultChunkSize();
+    public function getDefaultChunkSize();
 
     /**
      * Get current uploaded chunk number, starts with 1
      * @return int
      */
-    function getCurrentChunkNumber();
+    public function getCurrentChunkNumber();
 
     /**
      * Get current uploaded chunk size
      * @return int
      */
-    function getCurrentChunkSize();
-
-} 
+    public function getCurrentChunkSize();
+}

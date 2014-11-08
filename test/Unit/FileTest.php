@@ -68,7 +68,6 @@ class FileTest extends \PHPUnit_Framework_TestCase
         $firstChunk = vfsStream::newFile($chunkName);
         $this->root->addChild($firstChunk);
         $this->assertTrue($file->checkChunk());
-
     }
 
     public function testValidateChunk()

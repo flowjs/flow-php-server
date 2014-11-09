@@ -70,7 +70,7 @@ class File
     {
         $file = $this->request->getFile();
 
-	    if (!is_array($file)) {
+	    if (!$file) {
             return false;
         }
 

@@ -139,4 +139,14 @@ class Request implements RequestInterface
     {
         return $this->file;
     }
+
+	/**
+	 * Checks if request is formed by fusty flow
+	 *
+	 * @return bool
+	 */
+	public function isFustyFlowRequest()
+	{
+		return false;
+	}
 }

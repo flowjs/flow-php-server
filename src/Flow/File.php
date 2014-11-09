@@ -40,6 +40,16 @@ class File
     }
 
 	/**
+	 * Get file identifier
+	 *
+	 * @return string
+	 */
+	public function getIdentifier()
+	{
+		return $this->identifier;
+	}
+
+	/**
 	 * Return chunk path
 	 *
 	 * @param int $index
@@ -110,13 +120,15 @@ class File
     {
         $totalChunks = $this->request->getTotalChunks();
         $totalChunksSize = 0;
-        for ($i = 1; $i <= $totalChunks; $i++) {
+
+	    for ($i = 1; $i <= $totalChunks; $i++) {
             $file = $this->getChunkPath($i);
             if (!file_exists($file)) {
                 return false;
             }
             $totalChunksSize += filesize($file);
         }
+
         return $this->request->getTotalSize() == $totalChunksSize;
     }
 
@@ -134,18 +146,21 @@ class File
 	 */
     public function save($destination)
     {
-        $fh = fopen($destination, 'wb');
+        $fh = @fopen($destination, 'wb');
         if (!$fh) {
             throw new FileOpenException('failed to open destination file: ' . $destination);
         }
 
         if (!flock($fh, LOCK_EX | LOCK_NB, $blocked)) {
-            if ($blocked) {
+
+	        // @codeCoverageIgnoreStart
+	        if ($blocked) {
                 // Concurrent request has requested a lock.
                 // File is being processed at the moment.
                 // Warning: lock is not checked in windows.
                 return false;
             }
+            // @codeCoverageIgnoreEnd
 
             throw new FileLockException('failed to lock file: ' . $destination);
         }
@@ -157,7 +172,7 @@ class File
 
             for ($i = 1; $i <= $totalChunks; $i++) {
                 $file = $this->getChunkPath($i);
-                $chunk = fopen($file, "rb");
+                $chunk = @fopen($file, "rb");
 
                 if (!$chunk) {
                     throw new FileOpenException('failed to open chunk: ' . $file);
@@ -206,6 +221,7 @@ class File
      * This method is used only for testing
      *
      * @private
+     * @codeCoverageIgnore
      *
      * @param string $filePath
      * @param string $destinationPath

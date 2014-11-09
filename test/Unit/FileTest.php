@@ -1,207 +1,428 @@
 <?php
+
 namespace Unit;
 
+
 use Flow\File;
-use Flow\FileLockException;
-use Flow\Request;
 use Flow\Config;
+use Flow\FileLockException;
+use Flow\FileOpenException;
+use Flow\Request;
 use \org\bovigo\vfs\vfsStreamWrapper;
 use \org\bovigo\vfs\vfsStreamDirectory;
 use \org\bovigo\vfs\vfsStream;
 
-class FileTest extends \PHPUnit_Framework_TestCase
+/**
+ * File unit tests
+ *
+ * @coversDefaultClass \Flow\File
+ *
+ * @package Unit
+ */
+class FileTest extends FlowUnitCase
 {
     /**
-     * @var array
-     */
-    public $request;
-
-    /**
+     * Config
+     *
      * @var Config
      */
-    public $config;
+    protected $config;
 
     /**
+     * Virtual file system
+     *
      * @var vfsStreamDirectory
      */
-    public $root;
+    protected $vfs;
 
     protected function setUp()
     {
-        $this->request = new \ArrayObject([
-            'flowChunkNumber' => 1,
-            'flowChunkSize' => 1048576,
-            'flowCurrentChunkSize' => 10,
-            'flowTotalSize' => 10,
-            'flowIdentifier' => '13632-prettifyjs',
-            'flowFilename' => 'prettify.js',
-            'flowRelativePath' => 'home/prettify.js',
-            'flowTotalChunks' => 1
-        ]);
-        $this->config = new Config();
+		parent::setUp();
+
+	    // Setup virtual file system
         vfsStreamWrapper::register();
-        $this->root = new vfsStreamDirectory('chunks');
-        vfsStreamWrapper::setRoot($this->root);
-        $this->config->setTempDir($this->root->url());
+        $this->vfs = new vfsStreamDirectory('chunks');
+        vfsStreamWrapper::setRoot($this->vfs);
+
+	    // Setup Config
+	    $this->config = new Config();
+        $this->config->setTempDir($this->vfs->url());
     }
 
-    public function testRequest()
+	/**
+	 * @covers ::__construct
+	 * @covers ::getIdentifier
+	 */
+    public function testFile_construct_withRequest()
     {
-        $request = new Request($this->request);
-        $this->assertEquals($request->getFileName(), 'prettify.js');
-        $this->assertEquals($request->getTotalSize(), 10);
-        $this->assertEquals($request->getIdentifier(), '13632-prettifyjs');
-        $this->assertEquals($request->getRelativePath(), 'home/prettify.js');
-        $this->assertEquals($request->getTotalChunks(), 1);
-        $this->assertEquals($request->getDefaultChunkSize(), 1048576);
-        $this->assertEquals($request->getCurrentChunkNumber(), 1);
-        $this->assertEquals($request->getCurrentChunkSize(), 10);
+	    $request = new Request($this->requestArr);
+	    $file = new File($this->config, $request);
+
+	    $expIdentifier = sha1($this->requestArr['flowIdentifier']);
+	    $this->assertSame($expIdentifier, $file->getIdentifier());
     }
 
-    public function testCheckChunk()
+    /**
+	 * @covers ::__construct
+	 * @covers ::getIdentifier
+	 */
+    public function testFile_construct_noRequest()
     {
-        $request = new Request($this->request);
-        $file = new File($this->config, $request);
-        $this->assertFalse($file->checkChunk());
+	    $_REQUEST = $this->requestArr;
 
-        $chunkName = sha1($request->getIdentifier()) . '_' . $request->getCurrentChunkNumber();
-        $firstChunk = vfsStream::newFile($chunkName);
-        $this->root->addChild($firstChunk);
-        $this->assertTrue($file->checkChunk());
+	    $file = new File($this->config);
+
+	    $expIdentifier = sha1($this->requestArr['flowIdentifier']);
+	    $this->assertSame($expIdentifier, $file->getIdentifier());
     }
 
-    public function testValidateChunk()
+    /**
+	 * @covers ::getChunkPath
+	 */
+    public function testFile_construct_getChunkPath()
     {
-        $fileInfo = new \ArrayObject();
-        $request = new Request($this->request, $fileInfo);
-        $file = new File($this->config, $request);
-        $this->assertFalse($file->validateChunk());
+	    $request = new Request($this->requestArr);
+	    $file = new File($this->config, $request);
 
-        $fileInfo->exchangeArray([
-            'size' => 10,
-            'error' => UPLOAD_ERR_OK,
-            'tmp_name' => ''
-        ]);
-        $this->assertTrue($file->validateChunk());
-
-        $fileInfo->exchangeArray([
-            'size' => 9,
-            'error' => UPLOAD_ERR_OK,
-            'tmp_name' => ''
-        ]);
-        $this->assertFalse($file->validateChunk());
-
-        $fileInfo->exchangeArray([
-            'size' => 10,
-            'error' => UPLOAD_ERR_EXTENSION,
-            'tmp_name' => ''
-        ]);
-        $this->assertFalse($file->validateChunk());
+	    $expPath = $this->vfs->url() . DIRECTORY_SEPARATOR . sha1($this->requestArr['flowIdentifier']) . '_1';
+	    $this->assertSame($expPath, $file->getChunkPath(1));
     }
 
-    public function testValidateFile()
+    /**
+	 * @covers ::checkChunk
+	 */
+    public function testFile_construct_checkChunk()
     {
-        $this->request['flowTotalSize'] = 10;
-        $this->request['flowTotalChunks'] = 3;
-        $request = new Request($this->request);
-        $file = new File($this->config, $request);
+	    $request = new Request($this->requestArr);
+	    $file = new File($this->config, $request);
 
-        $this->assertFalse($file->validateFile());
+	    $this->assertFalse($file->checkChunk());
 
-        $chunkPrefix = sha1($request->getIdentifier()) . '_';
-        $firstChunk = vfsStream::newFile($chunkPrefix . '1');
-        $firstChunk->setContent('123');
-        $this->root->addChild($firstChunk);
+	    $chunkName = sha1($request->getIdentifier()) . '_' . $request->getCurrentChunkNumber();
+	    $firstChunk = vfsStream::newFile($chunkName);
+	    $this->vfs->addChild($firstChunk);
 
-        $secondChunk = vfsStream::newFile($chunkPrefix . '2');
-        $secondChunk->setContent('456');
-        $this->root->addChild($secondChunk);
-
-        $lastChunk = vfsStream::newFile($chunkPrefix . '3');
-        $lastChunk->setContent('7890');
-        $this->root->addChild($lastChunk);
-
-        $this->assertTrue($file->validateFile());
-
-        $lastChunk->setContent('789');
-        $this->assertFalse($file->validateFile());
-        $this->request['flowTotalSize'] = 9;
-        $this->assertTrue($file->validateFile());
-        $secondChunk->rename('4');
-        $this->assertFalse($file->validateFile());
-        $secondChunk->rename($chunkPrefix . '2');//restore
-        unlink($lastChunk->url());
-        $this->assertFalse($file->validateFile());
+	    $this->assertTrue($file->checkChunk());
     }
 
-    public function testDeleteChunks()
-    {
-        $this->request['flowTotalChunks'] = 4;
-        $fileInfo = new \ArrayObject();
-        $request = new Request($this->request, $fileInfo);
-        $file = new File($this->config, $request);
+	/**
+	 * @covers ::validateChunk
+	 */
+	public function testFile_validateChunk()
+	{
+		// No $_FILES
+		$request = new Request($this->requestArr);
+		$file = new File($this->config, $request);
 
-        $chunkPrefix = sha1($request->getIdentifier()) . '_';
-        $firstChunk = vfsStream::newFile($chunkPrefix . 1);
-        $this->root->addChild($firstChunk);
-        $secondChunk = vfsStream::newFile($chunkPrefix . 3);
-        $this->root->addChild($secondChunk);
+		$this->assertFalse($file->validateChunk());
 
-        $thirdChunk = vfsStream::newFile('other');
-        $this->root->addChild($thirdChunk);
+		// No 'file' key $_FILES
+		$fileInfo = new \ArrayObject();
+		$request = new Request($this->requestArr, $fileInfo);
+		$file = new File($this->config, $request);
 
-        $this->assertTrue(file_exists($firstChunk->url()));
-        $this->assertTrue(file_exists($secondChunk->url()));
-        $this->assertTrue(file_exists($thirdChunk->url()));
+		$this->assertFalse($file->validateChunk());
 
-        $file->deleteChunks();
-        $this->assertFalse(file_exists($firstChunk->url()));
-        $this->assertFalse(file_exists($secondChunk->url()));
-        $this->assertTrue(file_exists($thirdChunk->url()));
-    }
+		// Upload OK
+		$fileInfo->exchangeArray([
+			'size' => 10,
+			'error' => UPLOAD_ERR_OK,
+			'tmp_name' => ''
+		]);
+		$this->assertTrue($file->validateChunk());
 
-    public function testSave()
-    {
-        $this->request['flowTotalChunks'] = 3;
-        $request = new Request($this->request);
-        $file = new File($this->config, $request);
+		// Chunk size doesn't match
+		$fileInfo->exchangeArray([
+			'size' => 9,
+			'error' => UPLOAD_ERR_OK,
+			'tmp_name' => ''
+		]);
+		$this->assertFalse($file->validateChunk());
 
-        $chunkPrefix = sha1($request->getIdentifier()) . '_';
+		// Upload error
+		$fileInfo->exchangeArray([
+			'size' => 10,
+			'error' => UPLOAD_ERR_EXTENSION,
+			'tmp_name' => ''
+		]);
+		$this->assertFalse($file->validateChunk());
+	}
 
-        $chunk = vfsStream::newFile($chunkPrefix . '1', 0777);
-        $chunk->setContent('0123');
-        $this->root->addChild($chunk);
+	/**
+	 * @covers ::validateFile
+	 */
+	public function testFile_validateFile()
+	{
+		$this->requestArr['flowTotalSize'] = 10;
+		$this->requestArr['flowTotalChunks'] = 3;
 
-        $chunk = vfsStream::newFile($chunkPrefix . '2', 0777);
-        $chunk->setContent('456');
-        $this->root->addChild($chunk);
+		$request = new Request($this->requestArr);
+		$file = new File($this->config, $request);
+		$chunkPrefix = sha1($request->getIdentifier()) . '_';
 
-        $chunk = vfsStream::newFile($chunkPrefix . '3', 0777);
-        $chunk->setContent('789');
-        $this->root->addChild($chunk);
+		// No chunks uploaded yet
+		$this->assertFalse($file->validateFile());
 
-        $filePath = $this->root->url() . DIRECTORY_SEPARATOR . 'file';
-        $this->assertTrue($file->save($filePath));
-        $this->assertTrue(file_exists($filePath));
-        $this->assertEquals($request->getTotalSize(), filesize($filePath));
-    }
+		// First chunk
+		$firstChunk = vfsStream::newFile($chunkPrefix . '1');
+		$firstChunk->setContent('123');
+		$this->vfs->addChild($firstChunk);
 
-    public function testSaveLock()
-    {
-        $request = new Request($this->request);
-        $file = new File($this->config, $request);
-        $filePath = $this->root->url() . DIRECTORY_SEPARATOR . 'file';
+		// Uploaded not yet complete
+		$this->assertFalse($file->validateFile());
 
-        $fh = fopen($filePath, 'wb');
-        $this->assertTrue(flock($fh, LOCK_EX));
+		// Second chunk
+		$secondChunk = vfsStream::newFile($chunkPrefix . '2');
+		$secondChunk->setContent('456');
+		$this->vfs->addChild($secondChunk);
 
-        try {
-            // practically on a normal file system exception would not be thrown, this happens
-            // because vfsStreamWrapper does not support locking with block
-            $file->save($filePath);
-            $this->fail();
-        } catch (FileLockException $e) {
-            $this->assertEquals('failed to lock file: ' . $filePath, $e->getMessage());
-        }
-    }
+		// Uploaded not yet complete
+		$this->assertFalse($file->validateFile());
+
+		// Third chunk
+		$lastChunk = vfsStream::newFile($chunkPrefix . '3');
+		$lastChunk->setContent('7890');
+		$this->vfs->addChild($lastChunk);
+
+		// All chunks uploaded
+		$this->assertTrue($file->validateFile());
+
+		//// Test false values
+
+		// File size doesn't match
+		$lastChunk->setContent('789');
+		$this->assertFalse($file->validateFile());
+
+		// Correct file size and expect true
+		$this->requestArr['flowTotalSize'] = 9;
+		$this->assertTrue($file->validateFile());
+	}
+
+	/**
+	 * @covers ::deleteChunks
+	 */
+	public function testFile_deleteChunks()
+	{
+		//// Setup test
+
+		$this->requestArr['flowTotalChunks'] = 4;
+
+		$fileInfo = new \ArrayObject();
+		$request = new Request($this->requestArr, $fileInfo);
+		$file = new File($this->config, $request);
+		$chunkPrefix = sha1($request->getIdentifier()) . '_';
+
+		$firstChunk = vfsStream::newFile($chunkPrefix . 1);
+		$this->vfs->addChild($firstChunk);
+
+		$secondChunk = vfsStream::newFile($chunkPrefix . 3);
+		$this->vfs->addChild($secondChunk);
+
+		$thirdChunk = vfsStream::newFile('other');
+		$this->vfs->addChild($thirdChunk);
+
+		//// Actual test
+
+		$this->assertTrue(file_exists($firstChunk->url()));
+		$this->assertTrue(file_exists($secondChunk->url()));
+		$this->assertTrue(file_exists($thirdChunk->url()));
+
+		$file->deleteChunks();
+		$this->assertFalse(file_exists($firstChunk->url()));
+		$this->assertFalse(file_exists($secondChunk->url()));
+		$this->assertTrue(file_exists($thirdChunk->url()));
+	}
+
+	/**
+	 * @covers ::saveChunk
+	 */
+	public function testFile_saveChunk()
+	{
+		//// Setup test
+
+		// Setup temporary file
+		$tmpDir = new vfsStreamDirectory('tmp');
+		$tmpFile = vfsStream::newFile('tmpFile');
+		$tmpFile->setContent('1234567890');
+		$tmpDir->addChild($tmpFile);
+		$this->vfs->addChild($tmpDir);
+		$this->filesArr['file']['tmp_name'] = $tmpFile->url();
+
+		// Mock File to use rename instead of move_uploaded_file
+		$request = new Request($this->requestArr, $this->filesArr['file']);
+		$file = $this->getMock('Flow\File', ['_move_uploaded_file'], [$this->config, $request]);
+		$file->expects($this->once())
+		     ->method('_move_uploaded_file')
+		     ->will($this->returnCallback(function ($filename, $destination) {
+			     return rename($filename, $destination);
+		     }));
+
+		// Expected destination file
+		$expDstFile = $this->vfs->url() . DIRECTORY_SEPARATOR . sha1($request->getIdentifier()) . '_1';
+
+		//// Accrual test
+
+		$this->assertFalse(file_exists($expDstFile));
+		$this->assertTrue(file_exists($tmpFile->url()));
+
+		/** @noinspection PhpUndefinedMethodInspection */
+		$this->assertTrue($file->saveChunk());
+
+		$this->assertTrue(file_exists($expDstFile));
+		//$this->assertFalse(file_exists($tmpFile->url()));
+
+		$this->assertSame('1234567890', file_get_contents($expDstFile));
+	}
+
+	/**
+	 * @covers ::save
+	 */
+	public function testFile_save()
+	{
+		//// Setup test
+
+		$this->requestArr['flowTotalChunks'] = 3;
+		$this->requestArr['flowTotalSize'] = 10;
+
+		$request = new Request($this->requestArr);
+		$file = new File($this->config, $request);
+
+		$chunkPrefix = sha1($request->getIdentifier()) . '_';
+
+		$chunk = vfsStream::newFile($chunkPrefix . '1', 0777);
+		$chunk->setContent('0123');
+		$this->vfs->addChild($chunk);
+
+		$chunk = vfsStream::newFile($chunkPrefix . '2', 0777);
+		$chunk->setContent('456');
+		$this->vfs->addChild($chunk);
+
+		$chunk = vfsStream::newFile($chunkPrefix . '3', 0777);
+		$chunk->setContent('789');
+		$this->vfs->addChild($chunk);
+
+		$filePath = $this->vfs->url() . DIRECTORY_SEPARATOR . 'file';
+
+		//// Actual test
+
+		$this->assertTrue($file->save($filePath));
+		$this->assertTrue(file_exists($filePath));
+		$this->assertEquals($request->getTotalSize(), filesize($filePath));
+	}
+
+	/**
+	 * @covers ::save
+	 */
+	public function testFile_save_lock()
+	{
+		//// Setup test
+
+		$request = new Request($this->requestArr);
+		$file = new File($this->config, $request);
+
+		$dstFile = $this->vfs->url() . DIRECTORY_SEPARATOR . 'file';
+
+		// Lock file
+		$fh = fopen($dstFile, 'wb');
+		$this->assertTrue(flock($fh, LOCK_EX));
+
+		//// Actual test
+
+		try {
+			// practically on a normal file system exception would not be thrown, this happens
+			// because vfsStreamWrapper does not support locking with block
+			$file->save($dstFile);
+			$this->fail();
+		} catch (FileLockException $e) {
+			$this->assertEquals('failed to lock file: ' . $dstFile, $e->getMessage());
+		}
+	}
+
+	/**
+	 * @covers ::save
+	 */
+	public function testFile_save_FileOpenException()
+	{
+		$request = new Request($this->requestArr);
+		$file = new File($this->config, $request);
+
+		try {
+			$file->save('not/existing/path');
+			$this->fail();
+		} catch (FileOpenException $e) {
+			$this->assertEquals('failed to open destination file: not/existing/path', $e->getMessage());
+		}
+	}
+
+	/**
+	 * @covers ::save
+	 */
+	public function testFile_save_chunk_FileOpenException()
+	{
+		//// Setup test
+
+		$this->requestArr['flowTotalChunks'] = 3;
+		$this->requestArr['flowTotalSize'] = 10;
+
+		$request = new Request($this->requestArr);
+		$file = new File($this->config, $request);
+
+		$chunkPrefix = sha1($request->getIdentifier()) . '_';
+
+		$chunk = vfsStream::newFile($chunkPrefix . '1', 0777);
+		$chunk->setContent('0123');
+		$this->vfs->addChild($chunk);
+
+		$chunk = vfsStream::newFile($chunkPrefix . '2', 0777);
+		$chunk->setContent('456');
+		$this->vfs->addChild($chunk);
+
+		$missingChunk = $this->vfs->url() . DIRECTORY_SEPARATOR . $chunkPrefix . '3';
+		$filePath = $this->vfs->url() . DIRECTORY_SEPARATOR . 'file';
+
+		//// Actual test
+
+		try {
+			$file->save($filePath);
+		} catch (FileOpenException $e) {
+			$this->assertEquals('failed to open chunk: ' . $missingChunk, $e->getMessage());
+		}
+	}
+
+	/**
+	 * @covers ::save
+	 */
+	public function testFile_save_preProcess()
+	{
+		//// Setup test
+
+		$this->requestArr['flowTotalChunks'] = 1;
+		$this->requestArr['flowTotalSize'] = 10;
+		$processCalled = false;
+
+		$process = function($chunk) use (&$processCalled)
+		{
+			$processCalled = true;
+		};
+
+		$this->config->setPreprocessCallback($process);
+
+		$request = new Request($this->requestArr);
+		$file = new File($this->config, $request);
+
+		$chunkPrefix = sha1($request->getIdentifier()) . '_';
+
+		$chunk = vfsStream::newFile($chunkPrefix . '1', 0777);
+		$chunk->setContent('1234567890');
+		$this->vfs->addChild($chunk);
+
+		$filePath = $this->vfs->url() . DIRECTORY_SEPARATOR . 'file';
+
+		//// Actual test
+
+		$this->assertTrue($file->save($filePath));
+		$this->assertTrue(file_exists($filePath));
+		$this->assertEquals($request->getTotalSize(), filesize($filePath));
+		$this->assertTrue($processCalled);
+	}
 }

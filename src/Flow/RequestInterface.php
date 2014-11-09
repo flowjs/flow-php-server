@@ -66,4 +66,11 @@ interface RequestInterface
 	 * @return array|null
 	 */
 	public function getFile();
+
+	/**
+	 * Checks if request is formed by fusty flow
+	 *
+	 * @return bool
+	 */
+	public function isFustyFlowRequest();
 }

@@ -4,7 +4,9 @@ namespace Flow;
 
 /**
  * Class Basic
+ *
  * Example for handling basic uploads
+ *
  * @package Flow
  */
 class Basic
@@ -40,6 +42,7 @@ class Basic
                 return false;
             }
         }
+
         if ($file->validateFile() && $file->save($destination)) {
             return true;
         } else {

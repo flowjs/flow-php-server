@@ -11,6 +11,7 @@
          syntaxCheck="false"
          bootstrap="test/bootstrap.php"
         >
+
     <testsuites>
         <testsuite name="Flow Test Suite">
             <directory>./test/Unit/</directory>

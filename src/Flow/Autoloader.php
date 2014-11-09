@@ -19,15 +19,26 @@ class Autoloader
     public function __construct($dir = null)
     {
         if (is_null($dir)) {
-            $dir = dirname(__FILE__) . '/..';
+            $dir = __DIR__ . '/..';
         }
 
         $this->dir = $dir;
     }
 
 	/**
+	 * Return directory path
+	 *
+	 * @return string
+	 */
+	public function getDir()
+	{
+		return $this->dir;
+	}
+
+	/**
 	 * Register
 	 *
+	 * @codeCoverageIgnore
 	 * @param string|null $dir
 	 */
     public static function register($dir = null)

@@ -1,4 +1,5 @@
 <?php
+
 namespace Flow;
 
 class Config implements ConfigInterface

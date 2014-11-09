@@ -1,4 +1,5 @@
 <?php
+
 namespace Flow;
 
 class Request implements RequestInterface

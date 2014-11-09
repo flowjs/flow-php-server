@@ -64,15 +64,13 @@ class File
     /**
      * Validate file request
      *
-     * @throws exception for invalid $file array
-     *
      * @return bool
      */
     public function validateChunk()
     {
         $file = $this->request->getFile();
 
-	    if (!$file) {
+	    if (!is_array($file)) {
             return false;
         }
 
@@ -127,7 +125,9 @@ class File
 	 *
 	 * @param string $destination final file location
 	 *
-	 * @throws Exception
+	 *
+	 * @throws FileLockException
+	 * @throws FileOpenException
 	 * @throws \Exception
 	 *
 	 * @return bool indicates if file was saved
@@ -136,7 +136,7 @@ class File
     {
         $fh = fopen($destination, 'wb');
         if (!$fh) {
-            throw new Exception('Failed to open destination file');
+            throw new FileOpenException('failed to open destination file: ' . $destination);
         }
 
         if (!flock($fh, LOCK_EX | LOCK_NB, $blocked)) {
@@ -147,7 +147,7 @@ class File
                 return false;
             }
 
-            throw new Exception('Failed to lock file');
+            throw new FileLockException('failed to lock file: ' . $destination);
         }
 
 	    $totalChunks = $this->request->getTotalChunks();
@@ -160,7 +160,7 @@ class File
                 $chunk = fopen($file, "rb");
 
                 if (!$chunk) {
-                    throw new Exception('Failed to open chunk: ' . $file);
+                    throw new FileOpenException('failed to open chunk: ' . $file);
                 }
 
                 if ($preProcessChunk !== null) {

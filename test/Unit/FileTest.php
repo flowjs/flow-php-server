@@ -2,9 +2,9 @@
 namespace Unit;
 
 use Flow\File;
+use Flow\FileLockException;
 use Flow\Request;
 use Flow\Config;
-use Flow\Exception;
 use \org\bovigo\vfs\vfsStreamWrapper;
 use \org\bovigo\vfs\vfsStreamDirectory;
 use \org\bovigo\vfs\vfsStream;
@@ -194,13 +194,14 @@ class FileTest extends \PHPUnit_Framework_TestCase
 
         $fh = fopen($filePath, 'wb');
         $this->assertTrue(flock($fh, LOCK_EX));
+
         try {
             // practically on a normal file system exception would not be thrown, this happens
             // because vfsStreamWrapper does not support locking with block
             $file->save($filePath);
             $this->fail();
-        } catch (Exception $e) {
-            $this->assertEquals('Failed to lock file', $e->getMessage());
+        } catch (FileLockException $e) {
+            $this->assertEquals('failed to lock file: ' . $filePath, $e->getMessage());
         }
     }
 }

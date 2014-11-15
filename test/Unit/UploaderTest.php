@@ -68,7 +68,7 @@ class UploaderTest extends FlowUnitCase
 	public function testUploader_exception()
 	{
 		try {
-			Uploader::pruneChunks('not/existing/dir', 30);
+			@Uploader::pruneChunks('not/existing/dir', 30);
 			$this->fail();
 		} catch (FileOpenException $e) {
 			$this->assertSame('failed to open folder: not/existing/dir', $e->getMessage());

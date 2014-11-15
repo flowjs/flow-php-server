@@ -14,7 +14,7 @@ class Uploader
      */
     public static function pruneChunks($chunksFolder, $expirationTime = 172800)
     {
-        $handle = @opendir($chunksFolder); // TODO: find better way for handling warnings
+        $handle = opendir($chunksFolder);
 
         if (!$handle) {
             throw new FileOpenException('failed to open folder: '.$chunksFolder);

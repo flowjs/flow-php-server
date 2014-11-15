@@ -146,7 +146,7 @@ class File
      */
     public function save($destination)
     {
-        $fh = fopen($destination, 'wb'); // TODO: find better way for handling warnings
+        $fh = fopen($destination, 'wb');
         if (!$fh) {
             throw new FileOpenException('failed to open destination file: '.$destination);
         }
@@ -171,7 +171,7 @@ class File
 
             for ($i = 1; $i <= $totalChunks; $i++) {
                 $file = $this->getChunkPath($i);
-                $chunk = fopen($file, "rb"); // TODO: find better way for handling warnings
+                $chunk = fopen($file, "rb");
 
                 if (!$chunk) {
                     throw new FileOpenException('failed to open chunk: '.$file);

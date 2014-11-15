@@ -60,17 +60,17 @@ interface RequestInterface
      */
     public function getCurrentChunkSize();
 
-	/**
-	 * Return $_FILES request
-	 *
-	 * @return array|null
-	 */
-	public function getFile();
+    /**
+     * Return $_FILES request
+     *
+     * @return array|null
+     */
+    public function getFile();
 
-	/**
-	 * Checks if request is formed by fusty flow
-	 *
-	 * @return bool
-	 */
-	public function isFustyFlowRequest();
+    /**
+     * Checks if request is formed by fusty flow
+     *
+     * @return bool
+     */
+    public function isFustyFlowRequest();
 }

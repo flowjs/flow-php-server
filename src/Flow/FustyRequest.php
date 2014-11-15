@@ -19,7 +19,7 @@ class FustyRequest extends Request
 
         $this->isFusty = $this->getTotalSize() === null && $this->getFileName() && $this->getFile();
 
-	    if ($this->isFusty) {
+        if ($this->isFusty) {
             $this->params['flowTotalSize'] = isset($this->file['size']) ? $this->file['size'] : 0;
             $this->params['flowTotalChunks'] = 1;
             $this->params['flowChunkNumber'] = 1;

@@ -4,35 +4,34 @@ namespace Flow;
 
 class Uploader
 {
-	/**
-	 * Delete chunks older than expiration time.
-	 *
-	 * @param string $chunksFolder
-	 * @param int    $expirationTime seconds
-	 *
-	 * @throws FileOpenException
-	 */
+    /**
+     * Delete chunks older than expiration time.
+     *
+     * @param string $chunksFolder
+     * @param int    $expirationTime seconds
+     *
+     * @throws FileOpenException
+     */
     public static function pruneChunks($chunksFolder, $expirationTime = 172800)
     {
         $handle = @opendir($chunksFolder); // TODO: find better way for handling warnings
 
-	    if (!$handle) {
-            throw new FileOpenException('failed to open folder: ' . $chunksFolder);
+        if (!$handle) {
+            throw new FileOpenException('failed to open folder: '.$chunksFolder);
         }
 
-	    while (false !== ($entry = readdir($handle))) {
-
-		    if ($entry == "." || $entry == "..") {
+        while (false !== ($entry = readdir($handle))) {
+            if ($entry == "." || $entry == "..") {
                 continue;
             }
 
-		    $path = $chunksFolder . DIRECTORY_SEPARATOR . $entry;
+            $path = $chunksFolder.DIRECTORY_SEPARATOR.$entry;
 
-		    if (is_dir($path)) {
+            if (is_dir($path)) {
                 continue;
             }
 
-		    if (time() - filemtime($path) > $expirationTime) {
+            if (time() - filemtime($path) > $expirationTime) {
                 unlink($path);
             }
         }

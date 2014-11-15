@@ -4,18 +4,18 @@ namespace Flow;
 
 class Config implements ConfigInterface
 {
-	/**
-	 * Config
-	 *
-	 * @var array
-	 */
+    /**
+     * Config
+     *
+     * @var array
+     */
     private $config;
 
-	/**
-	 * Controller
-	 *
-	 * @param array $config
-	 */
+    /**
+     * Controller
+     *
+     * @param array $config
+     */
     public function __construct($config = array())
     {
         $this->config = $config;

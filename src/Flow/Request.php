@@ -4,26 +4,26 @@ namespace Flow;
 
 class Request implements RequestInterface
 {
-	/**
-	 * Request parameters
-	 *
-	 * @var array
-	 */
+    /**
+     * Request parameters
+     *
+     * @var array
+     */
     protected $params;
 
-	/**
-	 * File
-	 *
-	 * @var array
-	 */
+    /**
+     * File
+     *
+     * @var array
+     */
     protected $file;
 
-	/**
-	 * Constructor
-	 *
-	 * @param array|null $params
-	 * @param array|null $file
-	 */
+    /**
+     * Constructor
+     *
+     * @param array|null $params
+     * @param array|null $file
+     */
     public function __construct($params = null, $file = null)
     {
         if ($params === null) {
@@ -38,13 +38,13 @@ class Request implements RequestInterface
         $this->file = $file;
     }
 
-	/**
-	 * Get parameter value
-	 *
-	 * @param string $name
-	 *
-	 * @return string|int|null
-	 */
+    /**
+     * Get parameter value
+     *
+     * @param string $name
+     *
+     * @return string|int|null
+     */
     protected function getParam($name)
     {
         return isset($this->params[$name]) ? $this->params[$name] : null;
@@ -140,13 +140,13 @@ class Request implements RequestInterface
         return $this->file;
     }
 
-	/**
-	 * Checks if request is formed by fusty flow
-	 *
-	 * @return bool
-	 */
-	public function isFustyFlowRequest()
-	{
-		return false;
-	}
+    /**
+     * Checks if request is formed by fusty flow
+     *
+     * @return bool
+     */
+    public function isFustyFlowRequest()
+    {
+        return false;
+    }
 }

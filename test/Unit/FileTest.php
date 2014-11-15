@@ -347,7 +347,7 @@ class FileTest extends FlowUnitCase
 		$file = new File($this->config, $request);
 
 		try {
-			$file->save('not/existing/path');
+			@$file->save('not/existing/path');
 			$this->fail();
 		} catch (FileOpenException $e) {
 			$this->assertEquals('failed to open destination file: not/existing/path', $e->getMessage());
@@ -383,7 +383,7 @@ class FileTest extends FlowUnitCase
 		//// Actual test
 
 		try {
-			$file->save($filePath);
+			@$file->save($filePath);
 		} catch (FileOpenException $e) {
 			$this->assertEquals('failed to open chunk: ' . $missingChunk, $e->getMessage());
 		}

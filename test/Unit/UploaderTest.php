@@ -1,42 +1,77 @@
 <?php
+
 namespace Unit;
 
+
+use Flow\FileOpenException;
 use org\bovigo\vfs\vfsStreamWrapper;
 use org\bovigo\vfs\vfsStreamDirectory;
 use org\bovigo\vfs\vfsStream;
 use Flow\Uploader;
 
-class UploaderTest extends \PHPUnit_Framework_TestCase
+/**
+ * Uploader unit tests
+ *
+ * @coversDefaultClass \Flow\Uploader
+ *
+ * @package Unit
+ */
+class UploaderTest extends FlowUnitCase
 {
-    /**
-     * @var vfsStreamDirectory
-     */
-    public $root;
+	/**
+	 * Virtual file system
+	 *
+	 * @var vfsStreamDirectory
+	 */
+	protected $vfs;
 
     protected function setUp()
     {
         vfsStreamWrapper::register();
-        $this->root = new vfsStreamDirectory('chunks');
-        vfsStreamWrapper::setRoot($this->root);
+        $this->vfs = new vfsStreamDirectory('chunks');
+        vfsStreamWrapper::setRoot($this->vfs);
     }
 
-    public function testPruneChunks()
+	/**
+	 * @covers ::pruneChunks
+	 */
+    public function testUploader_pruneChunks()
     {
+	    //// Setup test
+
         $newDir = vfsStream::newDirectory('1');
         $newDir->lastModified(time()-31);
         $newDir->lastModified(time());
-        $fileFirst = vfsStream::newFile('file31');
+
+	    $fileFirst = vfsStream::newFile('file31');
         $fileFirst->lastModified(time()-31);
         $fileSecond = vfsStream::newFile('random_file');
         $fileSecond->lastModified(time()-30);
-        $this->root->addChild($newDir);
-        $this->root->addChild($fileFirst);
-        $this->root->addChild($fileSecond);
+	    $upDir = vfsStream::newFile('..');
 
-        Uploader::pruneChunks($this->root->url(), 30);
+	    $this->vfs->addChild($newDir);
+        $this->vfs->addChild($fileFirst);
+        $this->vfs->addChild($fileSecond);
+        $this->vfs->addChild($upDir);
+
+	    //// Actual test
+
+        Uploader::pruneChunks($this->vfs->url(), 30);
         $this->assertTrue(file_exists($newDir->url()));
         $this->assertFalse(file_exists($fileFirst->url()));
         $this->assertTrue(file_exists($fileSecond->url()));
     }
 
+	/**
+	 * @covers ::pruneChunks
+	 */
+	public function testUploader_exception()
+	{
+		try {
+			Uploader::pruneChunks('not/existing/dir', 30);
+			$this->fail();
+		} catch (FileOpenException $e) {
+			$this->assertSame('failed to open folder: not/existing/dir', $e->getMessage());
+		}
+	}
 }

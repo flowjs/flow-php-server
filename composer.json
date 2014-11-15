@@ -23,7 +23,9 @@
   },
   "require-dev": {
     "mikey179/vfsStream": "v1.2.0",
-    "league/phpunit-coverage-listener": "~1.1"
+    "league/phpunit-coverage-listener": "~1.1",
+    "fabpot/php-cs-fixer": "dev-master",
+    "phpunit/phpunit": "4.*"
   },
   "autoload": {
     "psr-0": {

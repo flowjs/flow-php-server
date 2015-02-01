@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if ($file->checkChunk()) {
         header("HTTP/1.1 200 Ok");
     } else {
-        header("HTTP/1.1 404 Not Found");
+        header("HTTP/1.1 204 No Content");
         return ;
     }
 } else {

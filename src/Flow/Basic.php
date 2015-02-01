@@ -30,8 +30,8 @@ class Basic
             if ($file->checkChunk()) {
                 header("HTTP/1.1 200 Ok");
             } else {
-                header("HTTP/1.1 404 Not Found");
-
+                // The 204 response MUST NOT include a message-body, and thus is always terminated by the first empty line after the header fields.
+                header("HTTP/1.1 204 No Content");
                 return false;
             }
         } else {
@@ -40,7 +40,6 @@ class Basic
             } else {
                 // error, invalid chunk upload request, retry
                 header("HTTP/1.1 400 Bad Request");
-
                 return false;
             }
         }

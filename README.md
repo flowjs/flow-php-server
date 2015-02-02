@@ -10,6 +10,33 @@ PHP library for handling chunk uploads. Library contains helper methods for:
 
 This library is compatible with HTML5 file upload library: https://github.com/flowjs/flow.js
 
+Installation
+--------------
+For easy installation you need to have Composer installed, if you don't please read installation document for Composer at https://getcomposer.org.
+
+Clone this repository first:
+```
+git clone https://github.com/ImanMh/flow-php-server.git
+```
+then cd into the cloned directory:
+```
+cd flow-php-server
+```
+use composer to download dependencies and autoload PHP classes:
+```
+composer install
+```
+create a new php file for uploading files to it:
+```
+touch upload.php
+```
+Edit upload.php and add these lines:
+```php
+namespace Flow;
+require_once './flow-php-server/vendor/autoload.php';
+```
+Note that you could also use ```use``` keyword to add each class inidividually into our current namespace. At this point you are ready to use flow. for more information about how to use it read Basic Usage section. 
+
 Basic Usage
 --------------
 ```php

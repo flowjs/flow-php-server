@@ -16,7 +16,7 @@ For easy installation you need to have Composer installed, if you don't please r
 
 Clone this repository first:
 ```
-git clone https://github.com/ImanMh/flow-php-server.git
+git clone https://github.com/flowjs/flow-php-server.git
 ```
 then cd into the cloned directory:
 ```

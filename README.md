@@ -10,15 +10,15 @@ PHP library for handling chunk uploads. Library contains helper methods for:
 
 This library is compatible with HTML5 file upload library: https://github.com/flowjs/flow.js
 
-Installation
+How to get started?
 --------------
-For easy installation you need to have Composer installed, if you don't please read installation document for Composer at https://getcomposer.org/download/.
+Download composer https://getcomposer.org/download/.
 
-Clone this repository first:
+Clone repository:
 ```
 git clone https://github.com/flowjs/flow-php-server.git
 ```
-Then cd into the cloned directory:
+Go to the cloned directory:
 ```
 cd flow-php-server
 ```
@@ -26,27 +26,23 @@ Use composer to download dependencies and autoload PHP classes.
 ```
 composer install
 ```
-This will create a vendor directory for you which contains an autoload.php file. Create a new php file:
-```
-touch upload.php
-```
-Edit upload.php and add these lines:
-```php
-namespace Flow;
-//Path to autoload.php from current location 
-require_once './flow-php-server/vendor/autoload.php';
-```
-Note that you could also use ```use``` keyword to add each class inidividually into our current namespace. At this point you are ready to use flow. for more information about how to use it read Basic Usage section. 
+This will create a vendor directory for you, which contains an autoload.php file. 
 
-Basic Usage
---------------
+Create a new php file named `upload.php`:
 ```php
-if (\Flow\Basic::save('./final_file_destination', './chunks_temp_folder')) {
+//Path to autoload.php from current location 
+require_once './vendor/autoload.php';
+
+$config = new \Flow\Config();
+$config->setTempDir('./chunks_temp_folder');
+$request = new \Flow\Request();
+if (\Flow\Basic::save('./' . $request->getIdentifier(), $config, $request)) {
   // file saved successfully and can be accessed at './final_file_destination'
 } else {
   // This is not a final chunk or request is invalid, continue to upload.
 }
 ```
+
 Make sure that `./chunks_temp_folder` path exists. All chunks will be save in this temporary folder.
 
 If you are stuck with this example, please read this issue: [How to use the flow-php-server](https://github.com/flowjs/flow-php-server/issues/3#issuecomment-46979467)

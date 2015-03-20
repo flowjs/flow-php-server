@@ -12,25 +12,17 @@ This library is compatible with HTML5 file upload library: https://github.com/fl
 
 How to get started?
 --------------
-Download composer https://getcomposer.org/download/.
+Setup Composer: https://getcomposer.org/doc/00-intro.md
 
-Clone repository:
+Run this command in your project:
 ```
-git clone https://github.com/flowjs/flow-php-server.git
+composer require flowjs/flow-php-server
 ```
-Go to the cloned directory:
-```
-cd flow-php-server
-```
-Use composer to download dependencies and autoload PHP classes.
-```
-composer install
-```
-This will create a vendor directory for you, which contains an autoload.php file. 
+This will create a vendor directory for you, which contains an autoload.php file.
 
 Create a new php file named `upload.php`:
 ```php
-//Path to autoload.php from current location 
+//Path to autoload.php from current location
 require_once './vendor/autoload.php';
 
 $config = new \Flow\Config();

@@ -24,6 +24,7 @@ class Basic
                 'tempDir' => $config,
             ));
         }
+
         $file = new File($config, $request);
 
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -46,8 +47,8 @@ class Basic
 
         if ($file->validateFile() && $file->save($destination)) {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 }

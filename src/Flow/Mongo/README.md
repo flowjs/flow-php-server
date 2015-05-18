@@ -1,7 +1,11 @@
 Usage
 --------------
 
-The usage is analogous to the 'normal' flow-php:
+ * Must use 'forceChunkSize=true' on client side.
+ * Chunk preprocessor not supported.
+ * One should ensure indices on the gridfs collection on the property 'flowIdentifier'.
+
+Besides the points above, the usage is analogous to the 'normal' flow-php:
 
 ```php
 $config = new \Flow\Mongo\MongoConfig($yourGridFs);

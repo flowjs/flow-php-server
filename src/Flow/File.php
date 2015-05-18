@@ -7,7 +7,7 @@ class File
     /**
      * @var RequestInterface
      */
-    private $request;
+    protected $request;
 
     /**
      * @var ConfigInterface

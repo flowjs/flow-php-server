@@ -44,7 +44,7 @@ class MongoFile extends File
             $changed = $gridFsFileQuery;
             $changed['flowUpdated'] = new \MongoDate();
             $this->uploadGridFsFile = $this->config->getGridFs()->findAndModify($gridFsFileQuery, $changed, null,
-                ['upsert' => true]);
+                ['upsert' => true, 'new' => true]);
         }
 
         return $this->uploadGridFsFile;

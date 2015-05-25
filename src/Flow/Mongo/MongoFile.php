@@ -96,6 +96,11 @@ class MongoFile extends File
 
             return true;
         } catch (\Exception $e) {
+            try {
+                $this->config->getGridFs()->chunks->remove($chunkQuery);
+            } catch (\Exception $e2) {
+                // fail gracefully
+            }
             return false;
         }
     }

@@ -98,6 +98,7 @@ class MongoFile extends File
 
             return true;
         } catch (\Exception $e) {
+            error_log("Could not store chunk: " . $e->getMessage() . "\n" . $e->getTraceAsString());
             try {
                 if (isset($chunkQuery)) {
                     $this->config->getGridFs()->chunks->remove($chunkQuery);
@@ -158,13 +159,13 @@ class MongoFile extends File
 
     public function ensureIndices()
     {
-        $gridFs = $this->config->getGridFs();
+        $chunksCollection = $this->config->getGridFs()->chunks;
         $indexKeys = ['files_id' => 1, 'n' => 1];
         $indexOptions = ['unique' => true, 'background' => true];
-        if(method_exists($gridFs, 'createIndex')) { // only available for PECL mongo >= 1.5.0
-            $gridFs->createIndex($indexKeys, $indexOptions);
+        if(method_exists($chunksCollection, 'createIndex')) { // only available for PECL mongo >= 1.5.0
+            $chunksCollection->createIndex($indexKeys, $indexOptions);
         } else {
-            $gridFs->ensureIndex($indexKeys, $indexOptions);
+            $chunksCollection->ensureIndex($indexKeys, $indexOptions);
         }
     }
 

@@ -94,6 +94,8 @@ class MongoFile extends File
             $this->config->getGridFs()->chunks->findAndModify($chunkQuery, $chunk, [], ['upsert' => true]);
             unlink($file['tmp_name']);
 
+            $this->ensureIndices();
+
             return true;
         } catch (\Exception $e) {
             try {
@@ -152,6 +154,18 @@ class MongoFile extends File
     public function deleteChunks()
     {
         // nothing to do, as chunks are directly part of the final file
+    }
+
+    public function ensureIndices()
+    {
+        $gridFs = $this->config->getGridFs();
+        $indexKeys = ['files_id' => 1, 'n' => 1];
+        $indexOptions = ['unique' => true, 'background' => true];
+        if(method_exists($gridFs, 'createIndex')) { // only available for PECL mongo >= 1.5.0
+            $gridFs->createIndex($indexKeys, $indexOptions);
+        } else {
+            $gridFs->ensureIndex($indexKeys, $indexOptions);
+        }
     }
 
     /**

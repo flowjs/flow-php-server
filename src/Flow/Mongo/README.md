@@ -38,6 +38,9 @@ if ($file->validateFile()) {
 }
 ```
 
+To write a file to disk one might prefer `\Flow\Mongo\MongoFile::writeFile($gridFs, $fileId, $file)` over conventional
+`\MongoGridFsFile::write($file)`, as the latter is not integrating on all platforms/drivers with this implementation.
+
 Delete unfinished files
 -----------------------
 

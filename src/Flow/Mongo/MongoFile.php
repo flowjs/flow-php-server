@@ -90,14 +90,16 @@ class MongoFile extends File
             ) {
                 throw new \Exception("Invalid upload! (size: {$actualChunkSize})");
             }
-            $chunk['data'] = new \MongoBinData($data);
+            $chunk['data'] = new \MongoBinData($data, 0); // \MongoBinData::GENERIC is not defined for older mongo drivers
             $this->config->getGridFs()->chunks->findAndModify($chunkQuery, $chunk, [], ['upsert' => true]);
             unlink($file['tmp_name']);
 
             return true;
         } catch (\Exception $e) {
             try {
-                $this->config->getGridFs()->chunks->remove($chunkQuery);
+                if (isset($chunkQuery)) {
+                    $this->config->getGridFs()->chunks->remove($chunkQuery);
+                }
             } catch (\Exception $e2) {
                 // fail gracefully
             }
@@ -164,5 +166,31 @@ class MongoFile extends File
             'chunkSize' => intval($this->request->getDefaultChunkSize()),
             'length' => intval($this->request->getTotalSize())
         ];
+    }
+
+    /**
+     * Saves an uploaded file to disk. Must have been stored via {@link saveToGridFs} before.
+     *
+     * Note: conventional {@link \MongoGridFSFile::write} might fail on some platforms/driver versions - use this method.
+     *
+     * @param \MongoGridFS $gridFS
+     * @param \MongoId $fileId id of grid fs file
+     * @param string $fileName absolute or relative file name (existing file is deleted)
+     * @return bool true on successful write and false on failure
+     */
+    public static function writeFile(\MongoGridFS $gridFS, \MongoId $fileId, $fileName)
+    {
+        if (file_exists($fileName)) {
+            unlink($fileName);
+        }
+        $chunkEntries = $gridFS->chunks->find(['files_id' => $fileId])->sort(['n' => 1]);
+        foreach ($chunkEntries as $chunkEntry) {
+            /** @var \MongoBinData $data */
+            $data = $chunkEntry['data'];
+            if (!file_put_contents($fileName, $data->bin, FILE_APPEND)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

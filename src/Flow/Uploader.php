@@ -21,7 +21,7 @@ class Uploader
         }
 
         while (false !== ($entry = readdir($handle))) {
-            if ($entry == "." || $entry == "..") {
+            if ($entry == "." || $entry == ".." || $entry == ".gitignore") {
                 continue;
             }
 

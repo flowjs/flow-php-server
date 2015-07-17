@@ -4,6 +4,9 @@ namespace Flow\Mongo;
 
 use Flow\FileOpenException;
 
+/**
+ * @codeCoverageIgnore
+ */
 class MongoUploader
 {
     /**

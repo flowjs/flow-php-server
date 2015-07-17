@@ -14,7 +14,7 @@ use Flow\RequestInterface;
  * - Chunk preprocessor not supported (must not modify chunks size)!
  * - Must use 'forceChunkSize=true' on client side.
  *
- * @package Flow
+ * @codeCoverageIgnore
  */
 class MongoFile extends File
 {

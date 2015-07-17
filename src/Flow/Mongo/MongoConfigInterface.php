@@ -5,7 +5,7 @@ namespace Flow\Mongo;
 use Flow\ConfigInterface;
 
 /**
- * @package Flow
+ * @codeCoverageIgnore
  */
 interface MongoConfigInterface extends ConfigInterface
 {

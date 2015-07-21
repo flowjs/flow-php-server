@@ -14,7 +14,7 @@ use Flow\RequestInterface;
  * - Chunk preprocessor not supported (must not modify chunks size)!
  * - Must use 'forceChunkSize=true' on client side.
  *
- * @package Flow
+ * @codeCoverageIgnore
  */
 class MongoFile extends File
 {
@@ -44,7 +44,7 @@ class MongoFile extends File
             $changed = $gridFsFileQuery;
             $changed['flowUpdated'] = new \MongoDate();
             $this->uploadGridFsFile = $this->config->getGridFs()->findAndModify($gridFsFileQuery, $changed, null,
-                ['upsert' => true]);
+                ['upsert' => true, 'new' => true]);
         }
 
         return $this->uploadGridFsFile;
@@ -69,8 +69,8 @@ class MongoFile extends File
 
     /**
      * Save chunk
-     *
      * @return bool
+     * @throws \Exception if upload size is invalid or some other unexpected error occurred.
      */
     public function saveChunk()
     {
@@ -90,13 +90,19 @@ class MongoFile extends File
             ) {
                 throw new \Exception("Invalid upload! (size: {$actualChunkSize})");
             }
-            $chunk['data'] = new \MongoBinData($data);
+            $chunk['data'] = new \MongoBinData($data, 0); // \MongoBinData::GENERIC is not defined for older mongo drivers
             $this->config->getGridFs()->chunks->findAndModify($chunkQuery, $chunk, [], ['upsert' => true]);
             unlink($file['tmp_name']);
 
+            $this->ensureIndices();
+
             return true;
         } catch (\Exception $e) {
-            return false;
+            // try to remove a possibly (partly) stored chunk:
+            if (isset($chunkQuery)) {
+                $this->config->getGridFs()->chunks->remove($chunkQuery);
+            }
+            throw $e;
         }
     }
 
@@ -145,6 +151,18 @@ class MongoFile extends File
     public function deleteChunks()
     {
         // nothing to do, as chunks are directly part of the final file
+    }
+
+    public function ensureIndices()
+    {
+        $chunksCollection = $this->config->getGridFs()->chunks;
+        $indexKeys = ['files_id' => 1, 'n' => 1];
+        $indexOptions = ['unique' => true, 'background' => true];
+        if(method_exists($chunksCollection, 'createIndex')) { // only available for PECL mongo >= 1.5.0
+            $chunksCollection->createIndex($indexKeys, $indexOptions);
+        } else {
+            $chunksCollection->ensureIndex($indexKeys, $indexOptions);
+        }
     }
 
     /**

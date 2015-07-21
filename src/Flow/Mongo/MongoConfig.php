@@ -4,6 +4,9 @@ namespace Flow\Mongo;
 
 use Flow\Config;
 
+/**
+ * @codeCoverageIgnore
+ */
 class MongoConfig extends Config implements MongoConfigInterface
 {
     private $gridFs;

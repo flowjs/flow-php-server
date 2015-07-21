@@ -98,7 +98,7 @@ class MongoFile extends File
 
             return true;
         } catch (\Exception $e) {
-            error_log("Could not store chunk: " . $e->getMessage() . "\n" . $e->getTraceAsString());
+            trigger_error("Could not store chunk: " . $e->getMessage() . "\n" . $e->getTraceAsString(), E_USER_WARNING);
             try {
                 if (isset($chunkQuery)) {
                     $this->config->getGridFs()->chunks->remove($chunkQuery);

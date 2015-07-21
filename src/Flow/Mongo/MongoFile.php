@@ -69,8 +69,8 @@ class MongoFile extends File
 
     /**
      * Save chunk
-     *
      * @return bool
+     * @throws \Exception if upload size is invalid or some other unexpected error occurred.
      */
     public function saveChunk()
     {
@@ -98,15 +98,11 @@ class MongoFile extends File
 
             return true;
         } catch (\Exception $e) {
-            trigger_error("Could not store chunk: " . $e->getMessage() . "\n" . $e->getTraceAsString(), E_USER_WARNING);
-            try {
-                if (isset($chunkQuery)) {
-                    $this->config->getGridFs()->chunks->remove($chunkQuery);
-                }
-            } catch (\Exception $e2) {
-                // fail gracefully
+            // try to remove a possibly (partly) stored chunk:
+            if (isset($chunkQuery)) {
+                $this->config->getGridFs()->chunks->remove($chunkQuery);
             }
-            return false;
+            throw $e;
         }
     }
 

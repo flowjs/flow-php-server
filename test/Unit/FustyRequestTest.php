@@ -45,17 +45,17 @@ class FustyRequestTest extends FlowUnitCase
 	    $firstChunk->setContent('1234567890');
 	    $this->vfs->addChild($firstChunk);
 
-	    $fileInfo = new \ArrayObject([
+	    $fileInfo = new \ArrayObject(array(
 		    'size' => 10,
 		    'error' => UPLOAD_ERR_OK,
 		    'tmp_name' => $firstChunk->url()
-	    ]);
+	    ));
 
-	    $request =  new \ArrayObject([
+	    $request =  new \ArrayObject(array(
 		    'flowIdentifier' => '13632-prettifyjs',
 		    'flowFilename' => 'prettify.js',
 		    'flowRelativePath' => 'home/prettify.js'
-	    ]);
+	    ));
 
 	    $fustyRequest = new FustyRequest($request, $fileInfo);
 
@@ -80,17 +80,17 @@ class FustyRequestTest extends FlowUnitCase
 		$firstChunk->setContent('1234567890');
 		$this->vfs->addChild($firstChunk);
 
-		$fileInfo = new \ArrayObject([
+		$fileInfo = new \ArrayObject(array(
 			'size' => 10,
 			'error' => UPLOAD_ERR_OK,
 			'tmp_name' => $firstChunk->url()
-		]);
+		));
 
-		$request =  new \ArrayObject([
+		$request =  new \ArrayObject(array(
 			'flowIdentifier' => '13632-prettifyjs',
 			'flowFilename' => 'prettify.js',
 			'flowRelativePath' => 'home/prettify.js'
-		]);
+		));
 
 		$fustyRequest = new FustyRequest($request, $fileInfo);
 
@@ -98,7 +98,7 @@ class FustyRequestTest extends FlowUnitCase
 		$config->setTempDir($this->vfs->url());
 
 		/** @var File $file */
-		$file = $this->getMock('Flow\File', array('_move_uploaded_file'), [$config, $fustyRequest]);
+		$file = $this->getMock('Flow\File', array('_move_uploaded_file'), array($config, $fustyRequest));
 
 		/** @noinspection PhpUndefinedMethodInspection */
 		$file->expects($this->once())

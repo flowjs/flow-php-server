@@ -23,7 +23,7 @@ class FlowUnitCase extends \PHPUnit_Framework_TestCase
 
 	protected function setUp()
 	{
-		$this->requestArr = new ArrayObject([
+		$this->requestArr = new ArrayObject(array(
 			'flowChunkNumber' => 1,
 			'flowChunkSize' => 1048576,
 			'flowCurrentChunkSize' => 10,
@@ -32,22 +32,22 @@ class FlowUnitCase extends \PHPUnit_Framework_TestCase
 			'flowFilename' => 'prettify.js',
 			'flowRelativePath' => 'home/prettify.js',
 			'flowTotalChunks' => 42
-		]);
+		));
 
-		$this->filesArr = [
-			'file' => [
+		$this->filesArr = array(
+			'file' => array(
 				'name' => 'someFile.gif',
 				'type' => 'image/gif',
 				'size' => '10',
 				'tmp_name' => '/tmp/abc1234',
 				'error' => UPLOAD_ERR_OK
-			]
-		];
+			)
+		);
 	}
 
 	protected function tearDown()
 	{
-		$_REQUEST = [];
-		$_FILES = [];
+		$_REQUEST = array();
+		$_FILES = array();
 	}
 }

@@ -124,27 +124,27 @@ class FileTest extends FlowUnitCase
 		$this->assertFalse($file->validateChunk());
 
 		// Upload OK
-		$fileInfo->exchangeArray([
+		$fileInfo->exchangeArray(array(
 			'size' => 10,
 			'error' => UPLOAD_ERR_OK,
 			'tmp_name' => ''
-		]);
+		));
 		$this->assertTrue($file->validateChunk());
 
 		// Chunk size doesn't match
-		$fileInfo->exchangeArray([
+		$fileInfo->exchangeArray(array(
 			'size' => 9,
 			'error' => UPLOAD_ERR_OK,
 			'tmp_name' => ''
-		]);
+		));
 		$this->assertFalse($file->validateChunk());
 
 		// Upload error
-		$fileInfo->exchangeArray([
+		$fileInfo->exchangeArray(array(
 			'size' => 10,
 			'error' => UPLOAD_ERR_EXTENSION,
 			'tmp_name' => ''
-		]);
+		));
 		$this->assertFalse($file->validateChunk());
 	}
 
@@ -250,7 +250,7 @@ class FileTest extends FlowUnitCase
 
 		// Mock File to use rename instead of move_uploaded_file
 		$request = new Request($this->requestArr, $this->filesArr['file']);
-		$file = $this->getMock('Flow\File', ['_move_uploaded_file'], [$this->config, $request]);
+		$file = $this->getMock('Flow\File', array('_move_uploaded_file'), array($this->config, $request));
 		$file->expects($this->once())
 		     ->method('_move_uploaded_file')
 		     ->will($this->returnCallback(function ($filename, $destination) {

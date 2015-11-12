@@ -24,12 +24,12 @@ class ConfigTest extends FlowUnitCase
 	 */
 	public function testConfig_construct_config()
 	{
-		$exampleConfig = [
+		$exampleConfig = array(
 			'tempDir' => '/some/dir',
 		    'deleteChunksOnSave' => TRUE,
 		    'hashNameCallback' => '\SomeNs\SomeClass::someMethod',
 		    'preprocessCallback' => '\SomeNs\SomeClass::preProcess'
-		];
+		);
 
 		$config = new Config($exampleConfig);
 

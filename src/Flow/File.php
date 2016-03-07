@@ -119,6 +119,11 @@ class File
     public function validateFile()
     {
         $totalChunks = $this->request->getTotalChunks();
+        $chunkNumber = $this->request->getCurrentChunkNumber();
+        if ($chunkNumber != $totalChunks) {
+            return false;
+        }
+
         $totalChunksSize = 0;
 
         for ($i = 1; $i <= $totalChunks; $i++) {

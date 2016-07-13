@@ -121,7 +121,7 @@ class File
         $totalChunks = $this->request->getTotalChunks();
         $totalChunksSize = 0;
 
-        for ($i = 1; $i <= $totalChunks; $i++) {
+        for ($i = $totalChunks; $i >= 1; $i--) {
             $file = $this->getChunkPath($i);
             if (!file_exists($file)) {
                 return false;

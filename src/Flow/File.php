@@ -22,6 +22,13 @@ class File
     private $identifier;
 
     /**
+     * Minimum number of digits for the chunk sub identifier.
+     *
+     * @var int
+     */
+    private $pad_length = 0;
+
+    /**
      * Constructor
      *
      * @param ConfigInterface  $config
@@ -53,11 +60,18 @@ class File
      * Return chunk path
      *
      * @param int $index
+     * @param int $pad_length
      *
      * @return string
      */
-    public function getChunkPath($index)
+    public function getChunkPath($index, $pad_length = -1)
     {
+        if($pad_length == -1){
+            $pad_length = $this->pad_length;
+        }
+        if($pad_length > 0){
+            $index = str_pad($index, $pad_length, '0', STR_PAD_LEFT);
+        }
         return $this->config->getTempDir().DIRECTORY_SEPARATOR.$this->identifier.'_'.$index;
     }
 

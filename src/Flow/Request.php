@@ -45,7 +45,7 @@ class Request implements RequestInterface
      *
      * @return string|int|null
      */
-    protected function getParam($name)
+    public function getParam($name)
     {
         return isset($this->params[$name]) ? $this->params[$name] : null;
     }

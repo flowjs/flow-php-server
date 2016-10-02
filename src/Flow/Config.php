@@ -22,6 +22,27 @@ class Config implements ConfigInterface
     }
 
     /**
+     * Set mime accept types
+     *
+     * @param $mime
+     */
+    public function setMimeAccept($mime)
+    {
+        $this->config['mimeAccept'] = $mime;
+    }
+
+    /**
+     * Get mime accept types
+     *
+     * @return array
+     */
+    public function getMimeAccept()
+    {
+        return $this->config['mimeAccept'];
+    }
+
+
+    /**
      * Set path to temporary directory for chunks storage
      *
      * @param $path

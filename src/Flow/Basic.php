@@ -22,11 +22,21 @@ class Basic
         if (!$config instanceof ConfigInterface) {
             $config = new Config(array(
                 'tempDir' => $config,
+                'mimeAccept' => array(
+                    'image/gif',
+                    'image/jpeg',
+                    'image/png',
+                    'image/bmp'
+                )
             ));
         }
 
         $file = new File($config, $request);
-
+        if (!$file->checkMime($config->getMimeAccept())){
+            header("HTTP/1.1 400 Bad Request");
+            echo "Invalid MIME Type: ".$file->getFileType();
+            return false;
+        }
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             if ($file->checkChunk()) {
                 header("HTTP/1.1 200 Ok");

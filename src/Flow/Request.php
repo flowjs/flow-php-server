@@ -38,6 +38,30 @@ class Request implements RequestInterface
         $this->file = $file;
     }
 
+
+    /**
+     * Get parameter of file
+     *
+     * @param string $name
+     *
+     * @return string|int|null
+     */
+    protected function getFileParam($name)
+    {
+        return isset($this->file[$name]) ? $this->file[$name] : null;
+    }
+
+    /**
+     * Get uploaded file type
+     *
+     * @return string|null
+     */
+    public function getFileType()
+    {
+        return $this->getFileParam('type');
+    }
+
+
     /**
      * Get parameter value
      *

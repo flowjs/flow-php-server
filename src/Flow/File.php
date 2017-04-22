@@ -58,7 +58,7 @@ class File
      */
     public function getChunkPath($index)
     {
-        return $this->config->getTempDir().DIRECTORY_SEPARATOR.$this->identifier.'_'.$index;
+        return $this->config->getTempDir().DIRECTORY_SEPARATOR.basename($this->identifier).'_'. (int) $index;
     }
 
     /**

@@ -155,6 +155,7 @@ class FileTest extends FlowUnitCase
 	{
 		$this->requestArr['flowTotalSize'] = 10;
 		$this->requestArr['flowTotalChunks'] = 3;
+		$this->requestArr['flowChunkNumber'] = 3;
 
 		$request = new Request($this->requestArr);
 		$file = new File($this->config, $request);

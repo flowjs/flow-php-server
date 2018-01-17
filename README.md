@@ -28,7 +28,7 @@ require_once './vendor/autoload.php';
 $config = new \Flow\Config();
 $config->setTempDir('./chunks_temp_folder');
 $request = new \Flow\Request();
-$uploadFolder = './final_file_destination/' // Folder where the file will be stored
+$uploadFolder = './final_file_destination/'; // Folder where the file will be stored
 $uploadFileName = uniqid()."_".$request->getFileName(); // The name the file will have on the server
 $uploadPath = $uploadFolder.$uploadFileName;
 if (\Flow\Basic::save($uploadPath, $config, $request)) {

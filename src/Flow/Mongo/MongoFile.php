@@ -112,15 +112,11 @@ class MongoFile extends File
      */
     public function validateFile()
     {
-        $totalChunks = $this->request->getTotalChunks();
-
-        for ($i = 1; $i <= $totalChunks; $i++) {
-            if (!$this->chunkExists($i)) {
-                return false;
-            }
-        }
-
-        return true;
+        $totalChunks = intval($this->request->getTotalChunks());
+        $storedChunks = $this->config->getGridFs()->chunks
+            ->find(['files_id' => $this->getGridFsFile()['_id']])
+            ->count();
+        return $totalChunks === $storedChunks;
     }
 
 

@@ -69,10 +69,11 @@ class MongoFile extends File
 
     /**
      * Save chunk
+     * @param $additionalUpdateOptions array additional options for the mongo update/upsert operation.
      * @return bool
      * @throws \Exception if upload size is invalid or some other unexpected error occurred.
      */
-    public function saveChunk()
+    public function saveChunk($additionalUpdateOptions = [])
     {
         try {
             $file = $this->request->getFile();
@@ -91,7 +92,7 @@ class MongoFile extends File
                 throw new \Exception("Invalid upload! (size: {$actualChunkSize})");
             }
             $chunk['data'] = new \MongoBinData($data, 0); // \MongoBinData::GENERIC is not defined for older mongo drivers
-            $this->config->getGridFs()->chunks->findAndModify($chunkQuery, $chunk, [], ['upsert' => true]);
+            $this->config->getGridFs()->chunks->update($chunkQuery, $chunk, array_merge(['upsert' => true], $additionalUpdateOptions));
             unlink($file['tmp_name']);
 
             $this->ensureIndices();
@@ -111,15 +112,11 @@ class MongoFile extends File
      */
     public function validateFile()
     {
-        $totalChunks = $this->request->getTotalChunks();
-
-        for ($i = 1; $i <= $totalChunks; $i++) {
-            if (!$this->chunkExists($i)) {
-                return false;
-            }
-        }
-
-        return true;
+        $totalChunks = intval($this->request->getTotalChunks());
+        $storedChunks = $this->config->getGridFs()->chunks
+            ->find(['files_id' => $this->getGridFsFile()['_id']])
+            ->count();
+        return $totalChunks === $storedChunks;
     }
 
 

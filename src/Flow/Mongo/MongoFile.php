@@ -9,7 +9,7 @@ use Flow\RequestInterface;
 use MongoDB\BSON\Binary;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
-use MongoDB\Operation\FindOneAndUpdate;
+use MongoDB\Operation\FindOneAndReplace;
 
 
 /**
@@ -48,8 +48,8 @@ class MongoFile extends File
             $gridFsFileQuery = $this->getGridFsFileQuery();
             $changed = $gridFsFileQuery;
             $changed['flowUpdated'] = new UTCDateTime();
-            $this->uploadGridFsFile = $this->config->getGridFs()->getFilesCollection()->findOneAndUpdate($gridFsFileQuery, $changed,
-                ['upsert' => true, 'returnDocument' => FindOneAndUpdate::RETURN_DOCUMENT_AFTER]);
+            $this->uploadGridFsFile = $this->config->getGridFs()->getFilesCollection()->findOneAndReplace($gridFsFileQuery, $changed,
+                ['upsert' => true, 'returnDocument' => FindOneAndReplace::RETURN_DOCUMENT_AFTER]);
         }
 
         return $this->uploadGridFsFile;
@@ -61,7 +61,7 @@ class MongoFile extends File
      */
     public function chunkExists($index)
     {
-        return $this->config->getGridFs()->getFilesCollection()->findOne([
+        return $this->config->getGridFs()->getChunksCollection()->findOne([
             'files_id' => $this->getGridFsFile()['_id'],
             'n' => (intval($index) - 1)
         ]) !== null;
@@ -97,7 +97,7 @@ class MongoFile extends File
                 throw new Exception("Invalid upload! (size: $actualChunkSize)");
             }
             $chunk['data'] = new Binary($data, Binary::TYPE_GENERIC);
-            $this->config->getGridFs()->getFilesCollection()->replaceOne($chunkQuery, $chunk, array_merge(['upsert' => true], $additionalUpdateOptions));
+            $this->config->getGridFs()->getChunksCollection()->replaceOne($chunkQuery, $chunk, array_merge(['upsert' => true], $additionalUpdateOptions));
             unlink($file['tmp_name']);
 
             $this->ensureIndices();
@@ -106,7 +106,7 @@ class MongoFile extends File
         } catch (Exception $e) {
             // try to remove a possibly (partly) stored chunk:
             if (isset($chunkQuery)) {
-                $this->config->getGridFs()->getFilesCollection()->deleteMany($chunkQuery);
+                $this->config->getGridFs()->getChunksCollection()->deleteMany($chunkQuery);
             }
             throw $e;
         }
@@ -118,7 +118,7 @@ class MongoFile extends File
     public function validateFile()
     {
         $totalChunks = intval($this->request->getTotalChunks());
-        $storedChunks = $this->config->getGridFs()->getFilesCollection()
+        $storedChunks = $this->config->getGridFs()->getChunksCollection()
             ->countDocuments(['files_id' => $this->getGridFsFile()['_id']]);
         return $totalChunks === $storedChunks;
     }

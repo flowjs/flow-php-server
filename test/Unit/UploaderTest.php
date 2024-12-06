@@ -25,7 +25,7 @@ class UploaderTest extends FlowUnitCase
 	 */
 	protected $vfs;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         vfsStreamWrapper::register();
         $this->vfs = new vfsStreamDirectory('chunks');

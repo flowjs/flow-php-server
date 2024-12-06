@@ -35,7 +35,7 @@ class FileTest extends FlowUnitCase
      */
     protected $vfs;
 
-    protected function setUp()
+    protected function setUp() : void
     {
 		parent::setUp();
 
@@ -117,34 +117,40 @@ class FileTest extends FlowUnitCase
 		$this->assertFalse($file->validateChunk());
 
 		// No 'file' key $_FILES
-		$fileInfo = new \ArrayObject();
+		$fileInfo = [];
 		$request = new Request($this->requestArr, $fileInfo);
 		$file = new File($this->config, $request);
 
 		$this->assertFalse($file->validateChunk());
 
 		// Upload OK
-		$fileInfo->exchangeArray(array(
+		$fileInfo = [
 			'size' => 10,
 			'error' => UPLOAD_ERR_OK,
 			'tmp_name' => ''
-		));
+		];
+		$request = new Request($this->requestArr, $fileInfo);
+		$file = new File($this->config, $request);
 		$this->assertTrue($file->validateChunk());
 
 		// Chunk size doesn't match
-		$fileInfo->exchangeArray(array(
+		$fileInfo = [
 			'size' => 9,
 			'error' => UPLOAD_ERR_OK,
 			'tmp_name' => ''
-		));
+		];
+		$request = new Request($this->requestArr, $fileInfo);
+		$file = new File($this->config, $request);
 		$this->assertFalse($file->validateChunk());
 
 		// Upload error
-		$fileInfo->exchangeArray(array(
+		$fileInfo = [
 			'size' => 10,
 			'error' => UPLOAD_ERR_EXTENSION,
 			'tmp_name' => ''
-		));
+		];
+		$request = new Request($this->requestArr, $fileInfo);
+		$file = new File($this->config, $request);
 		$this->assertFalse($file->validateChunk());
 	}
 
@@ -207,7 +213,7 @@ class FileTest extends FlowUnitCase
 
 		$this->requestArr['flowTotalChunks'] = 4;
 
-		$fileInfo = new \ArrayObject();
+		$fileInfo = [];
 		$request = new Request($this->requestArr, $fileInfo);
 		$file = new File($this->config, $request);
 		$chunkPrefix = sha1($request->getIdentifier()) . '_';
@@ -250,7 +256,7 @@ class FileTest extends FlowUnitCase
 
 		// Mock File to use rename instead of move_uploaded_file
 		$request = new Request($this->requestArr, $this->filesArr['file']);
-		$file = $this->getMock('Flow\File', array('_move_uploaded_file'), array($this->config, $request));
+		$file = $this->getMock('Flow\File', ['_move_uploaded_file'], [$this->config, $request]);
 		$file->expects($this->once())
 		     ->method('_move_uploaded_file')
 		     ->will($this->returnCallback(function ($filename, $destination) {

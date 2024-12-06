@@ -24,12 +24,12 @@ class ConfigTest extends FlowUnitCase
 	 */
 	public function testConfig_construct_config()
 	{
-		$exampleConfig = array(
+		$exampleConfig = [
 			'tempDir' => '/some/dir',
 		    'deleteChunksOnSave' => TRUE,
-		    'hashNameCallback' => '\SomeNs\SomeClass::someMethod',
-		    'preprocessCallback' => '\SomeNs\SomeClass::preProcess'
-		);
+		    'hashNameCallback' => ['\SomeNs\SomeClass', 'someMethod'],
+		    'preprocessCallback' => ['\SomeNs\SomeClass', 'preProcess'],
+		];
 
 		$config = new Config($exampleConfig);
 
@@ -52,7 +52,7 @@ class ConfigTest extends FlowUnitCase
 
 		$this->assertSame('', $config->getTempDir());
 		$this->assertSame(true, $config->getDeleteChunksOnSave());
-		$this->assertSame('\Flow\Config::hashNameCallback', $config->getHashNameCallback());
+		$this->assertSame(['\Flow\Config', 'hashNameCallback'], $config->getHashNameCallback());
 		$this->assertSame(null, $config->getPreprocessCallback());
 	}
 
@@ -75,7 +75,7 @@ class ConfigTest extends FlowUnitCase
 	 */
 	public function testConfig_setHashNameCallback()
 	{
-		$callback = '\SomeNs\SomeClass::someMethod';
+		$callback = ['\SomeNs\SomeClass', 'someMethod'];
 		$config = new Config();
 
 		$config->setHashNameCallback($callback);
@@ -88,7 +88,7 @@ class ConfigTest extends FlowUnitCase
 	 */
 	public function testConfig_setPreprocessCallback()
 	{
-		$callback = '\SomeNs\SomeClass::someOtherMethod';
+		$callback = ['\SomeNs\SomeClass', 'someOtherMethod'];
 		$config = new Config();
 
 		$config->setPreprocessCallback($callback);

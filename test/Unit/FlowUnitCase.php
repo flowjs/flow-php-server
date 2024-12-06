@@ -2,28 +2,21 @@
 
 namespace Unit;
 
-
-use ArrayObject;
-
-class FlowUnitCase extends \PHPUnit_Framework_TestCase
+class FlowUnitCase extends \PHPUnit\Framework\TestCase
 {
 	/**
 	 * Test request
-	 *
-	 * @var array
 	 */
-	protected $requestArr;
+	protected array $requestArr;
 
 	/**
 	 * $_FILES
-	 *
-	 * @var array
 	 */
-	protected $filesArr;
+	protected array $filesArr;
 
-	protected function setUp()
+	protected function setUp() : void
 	{
-		$this->requestArr = new ArrayObject(array(
+		$this->requestArr = [
 			'flowChunkNumber' => 1,
 			'flowChunkSize' => 1048576,
 			'flowCurrentChunkSize' => 10,
@@ -32,22 +25,22 @@ class FlowUnitCase extends \PHPUnit_Framework_TestCase
 			'flowFilename' => 'prettify.js',
 			'flowRelativePath' => 'home/prettify.js',
 			'flowTotalChunks' => 42
-		));
+		];
 
-		$this->filesArr = array(
-			'file' => array(
+		$this->filesArr = [
+			'file' => [
 				'name' => 'someFile.gif',
 				'type' => 'image/gif',
 				'size' => '10',
 				'tmp_name' => '/tmp/abc1234',
 				'error' => UPLOAD_ERR_OK
-			)
-		);
+			]
+		];
 	}
 
-	protected function tearDown()
+	protected function tearDown() : void
 	{
-		$_REQUEST = array();
-		$_FILES = array();
+		$_REQUEST = [];
+		$_FILES = [];
 	}
 }

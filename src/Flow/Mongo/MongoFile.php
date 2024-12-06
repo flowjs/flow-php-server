@@ -25,18 +25,12 @@ class MongoFile extends File
 {
     private $uploadGridFsFile;
 
-    /**
-     * @var MongoConfigInterface
-     */
-    private $config;
-
-    function __construct(MongoConfigInterface $config, RequestInterface $request = null)
+    function __construct(private MongoConfigInterface $config, RequestInterface $request = null)
     {
         if ($request === null) {
             $request = new Request();
         }
         parent::__construct($config, $request);
-        $this->config = $config;
     }
 
     /**
@@ -57,9 +51,8 @@ class MongoFile extends File
 
     /**
      * @param $index int|string 1-based
-     * @return bool
      */
-    public function chunkExists($index)
+    public function chunkExists(int $index) : bool
     {
         return $this->config->getGridFs()->getChunksCollection()->findOne([
             'files_id' => $this->getGridFsFile()['_id'],
@@ -67,7 +60,7 @@ class MongoFile extends File
         ]) !== null;
     }
 
-    public function checkChunk()
+    public function checkChunk() : bool
     {
         return $this->chunkExists($this->request->getCurrentChunkNumber());
     }
@@ -75,10 +68,10 @@ class MongoFile extends File
     /**
      * Save chunk
      * @param $additionalUpdateOptions array additional options for the mongo update/upsert operation.
-     * @return bool
-     * @throws Exception if upload size is invalid or some other unexpected error occurred.
+	 *
+	 * @throws Exception if upload size is invalid or some other unexpected error occurred.
      */
-    public function saveChunk($additionalUpdateOptions = [])
+    public function saveChunk(array $additionalUpdateOptions = []) : bool
     {
         try {
             $file = $this->request->getFile();
@@ -112,10 +105,7 @@ class MongoFile extends File
         }
     }
 
-    /**
-     * @return bool
-     */
-    public function validateFile()
+    public function validateFile() : bool
     {
         $totalChunks = intval($this->request->getTotalChunks());
         $storedChunks = $this->config->getGridFs()->getChunksCollection()
@@ -130,7 +120,7 @@ class MongoFile extends File
      * @return ObjectId|bool of saved file or false if file was already saved
      * @throws Exception
      */
-    public function saveToGridFs($metadata = null)
+    public function saveToGridFs(?array $metadata = null)
     {
         $file = $this->getGridFsFile();
         $file['flowStatus'] = 'finished';
@@ -144,28 +134,29 @@ class MongoFile extends File
         }
     }
 
-    public function save($destination)
+    public function save(string $destination)
     {
         throw new Exception("Must not use 'save' on MongoFile - use 'saveToGridFs'!");
     }
 
-    public function deleteChunks()
+    public function deleteChunks() : static
     {
         // nothing to do, as chunks are directly part of the final file
+
+        return $this;
     }
 
-    public function ensureIndices()
+    public function ensureIndices() : static
     {
         $chunksCollection = $this->config->getGridFs()->getChunksCollection();
         $indexKeys = ['files_id' => 1, 'n' => 1];
         $indexOptions = ['unique' => true, 'background' => true];
         $chunksCollection->createIndex($indexKeys, $indexOptions);
+
+		return $this;
     }
 
-    /**
-     * @return array
-     */
-    protected function getGridFsFileQuery()
+    protected function getGridFsFileQuery() : array
     {
         return [
             'flowIdentifier' => $this->request->getIdentifier(),

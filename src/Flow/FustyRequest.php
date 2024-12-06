@@ -11,9 +11,9 @@ namespace Flow;
  */
 class FustyRequest extends Request
 {
-    private $isFusty = false;
+    private bool $isFusty = false;
 
-    public function __construct($params = null, $file = null)
+    public function __construct(?array $params = null, ?array $file = null)
     {
         parent::__construct($params, $file);
 
@@ -30,9 +30,8 @@ class FustyRequest extends Request
 
     /**
      * Checks if request is formed by fusty flow
-     * @return bool
      */
-    public function isFustyFlowRequest()
+    public function isFustyFlowRequest() : bool
     {
         return $this->isFusty;
     }

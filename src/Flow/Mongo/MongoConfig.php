@@ -10,22 +10,16 @@ use MongoDB\GridFS\Bucket;
  */
 class MongoConfig extends Config implements MongoConfigInterface
 {
-    private $gridFs;
-
     /**
      * @param Bucket $gridFS storage of the upload (and chunks)
      */
-    function __construct(Bucket $gridFS)
+    function __construct(private Bucket $gridFS)
     {
         parent::__construct();
         $this->gridFs = $gridFS;
     }
 
-
-    /**
-     * @return Bucket
-     */
-    public function getGridFs()
+    public function getGridFs() : Bucket
     {
         return $this->gridFs;
     }

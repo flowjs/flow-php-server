@@ -5,37 +5,17 @@ namespace Flow;
 class Request implements RequestInterface
 {
     /**
-     * Request parameters
-     *
-     * @var array
-     */
-    protected $params;
-
-    /**
-     * File
-     *
-     * @var array
-     */
-    protected $file;
-
-    /**
      * Constructor
-     *
-     * @param array|null $params
-     * @param array|null $file
      */
-    public function __construct($params = null, $file = null)
+    public function __construct(protected ?array $params = null, protected ?array $file = null)
     {
         if ($params === null) {
-            $params = $_REQUEST;
+            $this->params = $_REQUEST;
         }
 
         if ($file === null && isset($_FILES['file'])) {
-            $file = $_FILES['file'];
+            $this->file = $_FILES['file'];
         }
-
-        $this->params = $params;
-        $this->file = $file;
     }
 
     /**
@@ -45,7 +25,7 @@ class Request implements RequestInterface
      *
      * @return string|int|null
      */
-    public function getParam($name)
+    public function getParam(string $name)
     {
         return isset($this->params[$name]) ? $this->params[$name] : null;
     }
@@ -55,97 +35,79 @@ class Request implements RequestInterface
      *
      * @return string|null
      */
-    public function getFileName()
+    public function getFileName() : ?string
     {
         return $this->getParam('flowFilename');
     }
 
     /**
      * Get total file size in bytes
-     *
-     * @return int|null
      */
-    public function getTotalSize()
+    public function getTotalSize() : ?int
     {
         return $this->getParam('flowTotalSize');
     }
 
     /**
      * Get file unique identifier
-     *
-     * @return string|null
      */
-    public function getIdentifier()
+    public function getIdentifier() : ?string
     {
         return $this->getParam('flowIdentifier');
     }
 
     /**
      * Get file relative path
-     *
-     * @return string|null
      */
-    public function getRelativePath()
+    public function getRelativePath() : ?string
     {
         return $this->getParam('flowRelativePath');
     }
 
     /**
      * Get total chunks number
-     *
-     * @return int|null
      */
-    public function getTotalChunks()
+    public function getTotalChunks() : ?int
     {
         return $this->getParam('flowTotalChunks');
     }
 
     /**
      * Get default chunk size
-     *
-     * @return int|null
      */
-    public function getDefaultChunkSize()
+    public function getDefaultChunkSize() : ?int
     {
         return $this->getParam('flowChunkSize');
     }
 
     /**
      * Get current uploaded chunk number, starts with 1
-     *
-     * @return int|null
      */
-    public function getCurrentChunkNumber()
+    public function getCurrentChunkNumber() : ?int
     {
         return $this->getParam('flowChunkNumber');
     }
 
     /**
      * Get current uploaded chunk size
-     *
-     * @return int|null
      */
-    public function getCurrentChunkSize()
+    public function getCurrentChunkSize() : ?int
     {
         return $this->getParam('flowCurrentChunkSize');
     }
 
     /**
      * Return $_FILES request
-     *
-     * @return array|null
      */
-    public function getFile()
+    public function getFile() : ?array
     {
         return $this->file;
     }
 
     /**
      * Checks if request is formed by fusty flow
-     *
-     * @return bool
      */
-    public function isFustyFlowRequest()
+    public function isFustyFlowRequest() : bool
     {
         return false;
     }

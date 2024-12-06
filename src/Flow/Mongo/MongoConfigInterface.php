@@ -10,10 +10,6 @@ use MongoDB\GridFS\Bucket;
  */
 interface MongoConfigInterface extends ConfigInterface
 {
-
-    /**
-     * @return Bucket
-     */
-    public function getGridFs();
+    public function getGridFs() : Bucket;
 
 }

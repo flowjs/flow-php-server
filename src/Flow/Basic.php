@@ -15,9 +15,9 @@ class Basic
      * @param  string                 $destination where to save file
      * @param  string|ConfigInterface $config
      */
-    public static function save(string $destination, $config, ?RequestInterface $request = null) : bool
+    public static function save(string $destination, $config, ?RequestInterface $request = null): bool
     {
-        if (!$config instanceof ConfigInterface) {
+        if (! $config instanceof ConfigInterface) {
             $config = new Config([
                 'tempDir' => $config,
             ]);
@@ -25,12 +25,13 @@ class Basic
 
         $file = new File($config, $request);
 
-        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        if ('GET' === $_SERVER['REQUEST_METHOD']) {
             if ($file->checkChunk()) {
-                header("HTTP/1.1 200 Ok");
+                header('HTTP/1.1 200 Ok');
             } else {
                 // The 204 response MUST NOT include a message-body, and thus is always terminated by the first empty line after the header fields.
-                header("HTTP/1.1 204 No Content");
+                header('HTTP/1.1 204 No Content');
+
                 return false;
             }
         } else {
@@ -38,15 +39,12 @@ class Basic
                 $file->saveChunk();
             } else {
                 // error, invalid chunk upload request, retry
-                header("HTTP/1.1 400 Bad Request");
+                header('HTTP/1.1 400 Bad Request');
+
                 return false;
             }
         }
 
-        if ($file->validateFile() && $file->save($destination)) {
-            return true;
-        }
-
-        return false;
+        return (bool) ($file->validateFile() && $file->save($destination));
     }
 }

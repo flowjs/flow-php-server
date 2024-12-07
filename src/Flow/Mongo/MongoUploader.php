@@ -2,8 +2,6 @@
 
 namespace Flow\Mongo;
 
-use MongoDB\GridFS\Bucket;
-
 /**
  * @codeCoverageIgnore
  */
@@ -14,7 +12,7 @@ class MongoUploader
      *
      * @param int $expirationTime seconds
      */
-    public static function pruneChunks(Bucker $gridFs, int $expirationTime = 172800) : void
+    public static function pruneChunks(Bucker $gridFs, int $expirationTime = 172800): void
     {
         $result = $gridFs->find([
             'flowUpdated' => ['$lt' => new \MongoDB\BSON\UTCDateTime(time() - $expirationTime)],

@@ -7,30 +7,30 @@ interface ConfigInterface
     /**
      * Get path to temporary directory for chunks storage
      */
-    public function getTempDir() : string;
+    public function getTempDir(): string;
 
     /**
      * Generate chunk identifier
      */
-    public function getHashNameCallback() : callable | array;
+    public function getHashNameCallback(): callable | array;
 
     /**
      * Callback to pre-process chunk
      */
-    public function setPreprocessCallback(callable | array $callback) : static;
+    public function setPreprocessCallback(callable | array $callback): static;
 
     /**
      * Callback to preprocess chunk
      */
-    public function getPreprocessCallback() : callable | array | null;
+    public function getPreprocessCallback(): callable | array | null;
 
     /**
      * Delete chunks on save
      */
-    public function setDeleteChunksOnSave(bool $delete) : static;
+    public function setDeleteChunksOnSave(bool $delete): static;
 
     /**
      * Delete chunks on save
      */
-    public function getDeleteChunksOnSave() : bool;
+    public function getDeleteChunksOnSave(): bool;
 }

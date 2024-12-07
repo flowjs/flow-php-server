@@ -11,7 +11,6 @@ use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Operation\FindOneAndReplace;
 
-
 /**
  * Notes:
  *
@@ -25,42 +24,26 @@ class MongoFile extends File
 {
     private $uploadGridFsFile;
 
-    function __construct(private MongoConfigInterface $config, RequestInterface $request = null)
+    public function __construct(private MongoConfigInterface $config, ?RequestInterface $request = null)
     {
-        if ($request === null) {
+        if (null === $request) {
             $request = new Request();
         }
         parent::__construct($config, $request);
     }
 
     /**
-     * return array
-     */
-    protected function getGridFsFile()
-    {
-        if (!$this->uploadGridFsFile) {
-            $gridFsFileQuery = $this->getGridFsFileQuery();
-            $changed = $gridFsFileQuery;
-            $changed['flowUpdated'] = new UTCDateTime();
-            $this->uploadGridFsFile = $this->config->getGridFs()->getFilesCollection()->findOneAndReplace($gridFsFileQuery, $changed,
-                ['upsert' => true, 'returnDocument' => FindOneAndReplace::RETURN_DOCUMENT_AFTER]);
-        }
-
-        return $this->uploadGridFsFile;
-    }
-
-    /**
      * @param $index int|string 1-based
      */
-    public function chunkExists(int $index) : bool
+    public function chunkExists(int $index): bool
     {
-        return $this->config->getGridFs()->getChunksCollection()->findOne([
+        return null !== $this->config->getGridFs()->getChunksCollection()->findOne([
             'files_id' => $this->getGridFsFile()['_id'],
-            'n' => (intval($index) - 1)
-        ]) !== null;
+            'n' => ((int) $index - 1)
+        ]);
     }
 
-    public function checkChunk() : bool
+    public function checkChunk(): bool
     {
         return $this->chunkExists($this->request->getCurrentChunkNumber());
     }
@@ -68,26 +51,26 @@ class MongoFile extends File
     /**
      * Save chunk
      * @param $additionalUpdateOptions array additional options for the mongo update/upsert operation.
-	 *
-	 * @throws Exception if upload size is invalid or some other unexpected error occurred.
+     *
+     * @throws Exception if upload size is invalid or some other unexpected error occurred.
      */
-    public function saveChunk(array $additionalUpdateOptions = []) : bool
+    public function saveChunk(array $additionalUpdateOptions = []): bool
     {
         try {
             $file = $this->request->getFile();
 
             $chunkQuery = [
                 'files_id' => $this->getGridFsFile()['_id'],
-                'n' => intval($this->request->getCurrentChunkNumber()) - 1,
+                'n' => (int) ($this->request->getCurrentChunkNumber()) - 1,
             ];
             $chunk = $chunkQuery;
             $data = file_get_contents($file['tmp_name']);
-            $actualChunkSize = strlen($data);
+            $actualChunkSize = \strlen($data);
             if ($actualChunkSize > $this->request->getDefaultChunkSize() ||
                 ($actualChunkSize < $this->request->getDefaultChunkSize() &&
                     $this->request->getCurrentChunkNumber() != $this->request->getTotalChunks())
             ) {
-                throw new Exception("Invalid upload! (size: $actualChunkSize)");
+                throw new Exception("Invalid upload! (size: {$actualChunkSize})");
             }
             $chunk['data'] = new Binary($data, Binary::TYPE_GENERIC);
             $this->config->getGridFs()->getChunksCollection()->replaceOne($chunkQuery, $chunk, array_merge(['upsert' => true], $additionalUpdateOptions));
@@ -101,24 +84,25 @@ class MongoFile extends File
             if (isset($chunkQuery)) {
                 $this->config->getGridFs()->getChunksCollection()->deleteMany($chunkQuery);
             }
+
             throw $e;
         }
     }
 
-    public function validateFile() : bool
+    public function validateFile(): bool
     {
-        $totalChunks = intval($this->request->getTotalChunks());
+        $totalChunks = (int) ($this->request->getTotalChunks());
         $storedChunks = $this->config->getGridFs()->getChunksCollection()
             ->countDocuments(['files_id' => $this->getGridFsFile()['_id']]);
+
         return $totalChunks === $storedChunks;
     }
-
 
     /**
      * Merge all chunks to single file
      * @param $metadata array additional metadata for final file
-     * @return ObjectId|bool of saved file or false if file was already saved
      * @throws Exception
+     * @return ObjectId|bool of saved file or false if file was already saved
      */
     public function saveToGridFs(?array $metadata = null)
     {
@@ -127,11 +111,12 @@ class MongoFile extends File
         $file['metadata'] = $metadata;
         $result = $this->config->getGridFs()->getFilesCollection()->findOneAndReplace($this->getGridFsFileQuery(), $file);
         // on second invocation no more file can be found, as the flowStatus changed:
-        if (is_null($result)) {
+        if (null === $result) {
             return false;
-        } else {
-            return $file['_id'];
         }
+
+        return $file['_id'];
+
     }
 
     public function save(string $destination)
@@ -139,31 +124,50 @@ class MongoFile extends File
         throw new Exception("Must not use 'save' on MongoFile - use 'saveToGridFs'!");
     }
 
-    public function deleteChunks() : static
+    public function deleteChunks(): static
     {
         // nothing to do, as chunks are directly part of the final file
 
         return $this;
     }
 
-    public function ensureIndices() : static
+    public function ensureIndices(): static
     {
         $chunksCollection = $this->config->getGridFs()->getChunksCollection();
         $indexKeys = ['files_id' => 1, 'n' => 1];
         $indexOptions = ['unique' => true, 'background' => true];
         $chunksCollection->createIndex($indexKeys, $indexOptions);
 
-		return $this;
+        return $this;
     }
 
-    protected function getGridFsFileQuery() : array
+    /**
+     * return array
+     */
+    protected function getGridFsFile()
+    {
+        if (! $this->uploadGridFsFile) {
+            $gridFsFileQuery = $this->getGridFsFileQuery();
+            $changed = $gridFsFileQuery;
+            $changed['flowUpdated'] = new UTCDateTime();
+            $this->uploadGridFsFile = $this->config->getGridFs()->getFilesCollection()->findOneAndReplace(
+                $gridFsFileQuery,
+                $changed,
+                ['upsert' => true, 'returnDocument' => FindOneAndReplace::RETURN_DOCUMENT_AFTER]
+            );
+        }
+
+        return $this->uploadGridFsFile;
+    }
+
+    protected function getGridFsFileQuery(): array
     {
         return [
             'flowIdentifier' => $this->request->getIdentifier(),
             'flowStatus' => 'uploading',
             'filename' => $this->request->getFileName(),
-            'chunkSize' => intval($this->request->getDefaultChunkSize()),
-            'length' => intval($this->request->getTotalSize())
+            'chunkSize' => (int) ($this->request->getDefaultChunkSize()),
+            'length' => (int) ($this->request->getTotalSize())
         ];
     }
 }

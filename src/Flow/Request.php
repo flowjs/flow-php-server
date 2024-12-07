@@ -9,11 +9,11 @@ class Request implements RequestInterface
      */
     public function __construct(protected ?array $params = null, protected ?array $file = null)
     {
-        if ($params === null) {
+        if (null === $params) {
             $this->params = $_REQUEST;
         }
 
-        if ($file === null && isset($_FILES['file'])) {
+        if (null === $file && isset($_FILES['file'])) {
             $this->file = $_FILES['file'];
         }
     }
@@ -21,21 +21,19 @@ class Request implements RequestInterface
     /**
      * Get parameter value
      *
-     * @param string $name
      *
      * @return string|int|null
      */
     public function getParam(string $name)
     {
-        return isset($this->params[$name]) ? $this->params[$name] : null;
+        return $this->params[$name] ?? null;
     }
 
     /**
      * Get uploaded file name
      *
-     * @return string|null
      */
-    public function getFileName() : ?string
+    public function getFileName(): ?string
     {
         return $this->getParam('flowFilename');
     }
@@ -43,7 +41,7 @@ class Request implements RequestInterface
     /**
      * Get total file size in bytes
      */
-    public function getTotalSize() : ?int
+    public function getTotalSize(): ?int
     {
         return $this->getParam('flowTotalSize');
     }
@@ -51,7 +49,7 @@ class Request implements RequestInterface
     /**
      * Get file unique identifier
      */
-    public function getIdentifier() : ?string
+    public function getIdentifier(): ?string
     {
         return $this->getParam('flowIdentifier');
     }
@@ -59,7 +57,7 @@ class Request implements RequestInterface
     /**
      * Get file relative path
      */
-    public function getRelativePath() : ?string
+    public function getRelativePath(): ?string
     {
         return $this->getParam('flowRelativePath');
     }
@@ -67,7 +65,7 @@ class Request implements RequestInterface
     /**
      * Get total chunks number
      */
-    public function getTotalChunks() : ?int
+    public function getTotalChunks(): ?int
     {
         return $this->getParam('flowTotalChunks');
     }
@@ -75,7 +73,7 @@ class Request implements RequestInterface
     /**
      * Get default chunk size
      */
-    public function getDefaultChunkSize() : ?int
+    public function getDefaultChunkSize(): ?int
     {
         return $this->getParam('flowChunkSize');
     }
@@ -83,7 +81,7 @@ class Request implements RequestInterface
     /**
      * Get current uploaded chunk number, starts with 1
      */
-    public function getCurrentChunkNumber() : ?int
+    public function getCurrentChunkNumber(): ?int
     {
         return $this->getParam('flowChunkNumber');
     }
@@ -91,7 +89,7 @@ class Request implements RequestInterface
     /**
      * Get current uploaded chunk size
      */
-    public function getCurrentChunkSize() : ?int
+    public function getCurrentChunkSize(): ?int
     {
         return $this->getParam('flowCurrentChunkSize');
     }
@@ -99,7 +97,7 @@ class Request implements RequestInterface
     /**
      * Return $_FILES request
      */
-    public function getFile() : ?array
+    public function getFile(): ?array
     {
         return $this->file;
     }
@@ -107,7 +105,7 @@ class Request implements RequestInterface
     /**
      * Checks if request is formed by fusty flow
      */
-    public function isFustyFlowRequest() : bool
+    public function isFustyFlowRequest(): bool
     {
         return false;
     }

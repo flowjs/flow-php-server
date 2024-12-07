@@ -13,13 +13,13 @@ class MongoConfig extends Config implements MongoConfigInterface
     /**
      * @param Bucket $gridFS storage of the upload (and chunks)
      */
-    function __construct(private Bucket $gridFS)
+    public function __construct(private Bucket $gridFS)
     {
         parent::__construct();
         $this->gridFs = $gridFS;
     }
 
-    public function getGridFs() : Bucket
+    public function getGridFs(): Bucket
     {
         return $this->gridFs;
     }

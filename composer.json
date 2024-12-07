@@ -23,7 +23,7 @@
   },
   "require-dev": {
     "mikey179/vfsstream": "^1.2",
-    "friendsofphp/php-cs-fixer": "^3.0",
+    "friendsofphp/php-cs-fixer": "^3.65",
     "phpunit/phpunit": ">=9.0",
     "mongodb/mongodb": "^1.4.0",
     "ext-mongodb": "*"

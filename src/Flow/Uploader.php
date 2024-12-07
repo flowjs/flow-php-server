@@ -15,12 +15,12 @@ class Uploader
     {
         $handle = opendir($chunksFolder);
 
-        if (!$handle) {
+        if (! $handle) {
             throw new FileOpenException('failed to open folder: '.$chunksFolder);
         }
 
         while (false !== ($entry = readdir($handle))) {
-            if ($entry == "." || $entry == ".." || $entry == ".gitignore") {
+            if ('.' == $entry || '..' == $entry || '.gitignore' == $entry) {
                 continue;
             }
 

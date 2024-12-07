@@ -11,79 +11,79 @@ class Config implements ConfigInterface
     /**
      * Set path to temporary directory for chunks storage
      */
-    public function setTempDir(string $path) : static
+    public function setTempDir(string $path): static
     {
         $this->config['tempDir'] = $path;
 
-		return $this;
+        return $this;
     }
 
     /**
      * Get path to temporary directory for chunks storage
      */
-    public function getTempDir() : string
+    public function getTempDir(): string
     {
-        return isset($this->config['tempDir']) ? $this->config['tempDir'] : '';
+        return $this->config['tempDir'] ?? '';
     }
 
     /**
      * Set chunk identifier
      */
-    public function setHashNameCallback(callable | array $callback) : static
+    public function setHashNameCallback(callable | array $callback): static
     {
         $this->config['hashNameCallback'] = $callback;
 
-		return $this;
+        return $this;
     }
 
     /**
      * Generate chunk identifier
      */
-    public function getHashNameCallback() : callable | array
+    public function getHashNameCallback(): callable | array
     {
-        return isset($this->config['hashNameCallback']) ? $this->config['hashNameCallback'] : ['\Flow\Config', 'hashNameCallback'];
+        return $this->config['hashNameCallback'] ?? ['\Flow\Config', 'hashNameCallback'];
     }
 
     /**
      * Callback to pre-process chunk
      */
-    public function setPreprocessCallback(callable | array $callback) : static
+    public function setPreprocessCallback(callable | array $callback): static
     {
         $this->config['preprocessCallback'] = $callback;
 
-		return $this;
+        return $this;
     }
 
     /**
      * Callback to pre-process chunk
      */
-    public function getPreprocessCallback() : callable | array | null
+    public function getPreprocessCallback(): callable | array | null
     {
-        return isset($this->config['preprocessCallback']) ? $this->config['preprocessCallback'] : null;
+        return $this->config['preprocessCallback'] ?? null;
     }
 
     /**
      * Delete chunks on save
      */
-    public function setDeleteChunksOnSave(bool $delete) : static
+    public function setDeleteChunksOnSave(bool $delete): static
     {
         $this->config['deleteChunksOnSave'] = $delete;
 
-		return $this;
+        return $this;
     }
 
     /**
      * Delete chunks on save
      */
-    public function getDeleteChunksOnSave() : bool
+    public function getDeleteChunksOnSave(): bool
     {
-        return isset($this->config['deleteChunksOnSave']) ? $this->config['deleteChunksOnSave'] : true;
+        return $this->config['deleteChunksOnSave'] ?? true;
     }
 
     /**
      * Generate chunk identifier
      */
-    public static function hashNameCallback(RequestInterface $request) : string
+    public static function hashNameCallback(RequestInterface $request): string
     {
         return sha1($request->getIdentifier());
     }

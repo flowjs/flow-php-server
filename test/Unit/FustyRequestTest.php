@@ -94,7 +94,6 @@ class FustyRequestTest extends FlowUnitCase
         $config = new Config();
         $config->setTempDir($this->vfs->url());
 
-        /** @var File $file */
         $file = $this->createMock('Flow\File');//, ['_move_uploaded_file'], [$config, $fustyRequest]);
 
         /** @noinspection PhpUndefinedMethodInspection */

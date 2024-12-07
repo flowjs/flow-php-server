@@ -2,6 +2,8 @@
 
 namespace Flow;
 
+use MongoDB\GridFS\Bucket;
+
 interface ConfigInterface
 {
     /**
@@ -33,4 +35,9 @@ interface ConfigInterface
      * Delete chunks on save
      */
     public function getDeleteChunksOnSave(): bool;
+
+    /**
+     * Only defined for MongoConfig
+     */
+    public function getGridFs(): ?Bucket;
 }

@@ -3,6 +3,7 @@
 namespace Flow\Mongo;
 
 use Exception;
+use Flow\ConfigInterface;
 use Flow\File;
 use Flow\Request;
 use Flow\RequestInterface;
@@ -24,7 +25,7 @@ class MongoFile extends File
 {
     private $uploadGridFsFile;
 
-    public function __construct(private MongoConfigInterface $config, ?RequestInterface $request = null)
+    public function __construct(protected ConfigInterface $config, ?RequestInterface $request = null)
     {
         if (null === $request) {
             $request = new Request();
@@ -81,7 +82,7 @@ class MongoFile extends File
             return true;
         } catch (Exception $e) {
             // try to remove a possibly (partly) stored chunk:
-            if (isset($chunkQuery)) {
+            if (isset($chunkQuery)) { // @phpstan-ignore-line
                 $this->config->getGridFs()->getChunksCollection()->deleteMany($chunkQuery);
             }
 
@@ -119,7 +120,7 @@ class MongoFile extends File
 
     }
 
-    public function save(string $destination)
+    public function save(string $destination): bool
     {
         throw new Exception("Must not use 'save' on MongoFile - use 'saveToGridFs'!");
     }

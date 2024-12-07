@@ -2,6 +2,8 @@
 
 namespace Flow;
 
+use MongoDB\GridFS\Bucket;
+
 class Config implements ConfigInterface
 {
     public function __construct(private array $config = [])
@@ -86,5 +88,13 @@ class Config implements ConfigInterface
     public static function hashNameCallback(RequestInterface $request): string
     {
         return sha1($request->getIdentifier());
+    }
+
+    /**
+     * Only defined for MongoConfig
+     */
+    public function getGridFs(): ?Bucket
+    {
+        return null;
     }
 }

@@ -9,7 +9,7 @@ class File
      */
     private string $identifier;
 
-    public function __construct(private ConfigInterface $config, private ?RequestInterface $request = null)
+    public function __construct(protected ConfigInterface $config, protected ?RequestInterface $request = null)
     {
         if (null === $request) {
             $this->request = new Request();

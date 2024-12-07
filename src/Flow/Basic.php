@@ -15,7 +15,7 @@ class Basic
      * @param  string                 $destination where to save file
      * @param  string|ConfigInterface $config
      */
-    public static function save(string $destination, $config, ?RequestInterface $request = null): bool
+    public static function save(string|ConfigInterface $destination, $config, ?RequestInterface $request = null): bool
     {
         if (! $config instanceof ConfigInterface) {
             $config = new Config([

@@ -200,6 +200,8 @@ class FileTest extends FlowUnitCase
 
         // Correct file size and expect true
         $this->requestArr['flowTotalSize'] = 9;
+        $request = new Request($this->requestArr);
+        $file = new File($this->config, $request);
         $this->assertTrue($file->validateFile());
     }
 
@@ -255,7 +257,7 @@ class FileTest extends FlowUnitCase
 
         // Mock File to use rename instead of move_uploaded_file
         $request = new Request($this->requestArr, $this->filesArr['file']);
-        $file = $this->getMock('Flow\File', ['_move_uploaded_file'], [$this->config, $request]);
+        $file = $this->createMock('Flow\File'); //, ['_move_uploaded_file'], [$this->config, $request]);
         $file->expects($this->once())
             ->method('_move_uploaded_file')
             ->will($this->returnCallback(static function ($filename, $destination) {

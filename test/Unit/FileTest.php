@@ -245,8 +245,6 @@ class FileTest extends FlowUnitCase
      */
     public function testFile_saveChunk()
     {
-        //// Setup test
-
         // Setup temporary file
         $tmpDir = new vfsStreamDirectory('tmp');
         $tmpFile = vfsStream::newFile('tmpFile');
@@ -257,18 +255,19 @@ class FileTest extends FlowUnitCase
 
         // Mock File to use rename instead of move_uploaded_file
         $request = new Request($this->requestArr, $this->filesArr['file']);
-        $file = $this->createMock('Flow\File'); //, ['_move_uploaded_file'], [$this->config, $request]);
+        $file = $this->createPartialMock(File::class, ['_move_uploaded_file']);
         $file->expects($this->once())
             ->method('_move_uploaded_file')
-            ->will($this->returnCallback(static function ($filename, $destination) {
+            ->willReturnCallback(static function (string $filename, string $destination): bool {
                 return rename($filename, $destination);
-            }));
+            });
+        $file->__construct($this->config, $request);
+
 
         // Expected destination file
         $expDstFile = $this->vfs->url().DIRECTORY_SEPARATOR.sha1($request->getIdentifier()).'_1';
 
         //// Accrual test
-
         $this->assertFalse(file_exists($expDstFile));
         $this->assertTrue(file_exists($tmpFile->url()));
 

@@ -71,8 +71,6 @@ class FustyRequestTest extends FlowUnitCase
 
     public function testFustyRequest_ValidateUpload()
     {
-        //// Setup test
-
         $firstChunk = vfsStream::newFile('temp_file');
         $firstChunk->setContent('1234567890');
         $this->vfs->addChild($firstChunk);
@@ -94,14 +92,15 @@ class FustyRequestTest extends FlowUnitCase
         $config = new Config();
         $config->setTempDir($this->vfs->url());
 
-        $file = $this->createMock('Flow\File');//, ['_move_uploaded_file'], [$config, $fustyRequest]);
+        $file = $this->createPartialMock(File::class, ['_move_uploaded_file']);
+        $file->__construct($config, $fustyRequest);
 
         /** @noinspection PhpUndefinedMethodInspection */
         $file->expects($this->once())
             ->method('_move_uploaded_file')
-            ->will($this->returnCallback(static function ($filename, $destination) {
+            ->willReturnCallback(static function ($filename, $destination) {
                 return rename($filename, $destination);
-            }));
+            });
 
         //// Actual test
 
